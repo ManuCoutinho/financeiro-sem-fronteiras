@@ -1,0 +1,14 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand: var(--app-theme-color);
+  --color-income: #15803d;
+  --color-expense: #b91c1c;
+  --color-warning: #a16207;
+  --color-voided: #6b7280;
+  --spacing-touch: 2.75rem;
+}
+
+html {
+  font-size: 100%;
+}
