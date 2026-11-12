@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null && request.auth.uid == '__OWNER_UID__';
+    }
+    function isDayOpen(day) {
+      let closingPath = /databases/$(database)/documents/cashClosings/$(day);
+      return !exists(closingPath) || get(closingPath).data.isClosed == false;
+    }
+    function isValidTransaction() {
+      let data = request.resource.data;
+      return data.type in ['service', 'product', 'expense']
+        && data.paymentMethod in ['pix', 'cash', 'debit', 'credit']
+        && data.grossCents is int && data.grossCents >= 0
+        && data.discountCents is int && data.discountCents >= 0
+        && data.discountCents <= data.grossCents
+        && data.feeCents is int && data.netCents is int
+        && data.day is string && data.day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.isVoided == false
+        && isDayOpen(data.day);
+    }
+    function isVoidingOnce() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isVoided', 'voidedAt'])
+        && resource.data.isVoided == false
+        && request.resource.data.isVoided == true
+        && isDayOpen(resource.data.day);
+    }
+
+    match /settings/{docId}     { allow read, write: if isOwner(); }
+    match /services/{id}        { allow read, write: if isOwner(); }
+    match /products/{id}        { allow read, write: if isOwner(); }
+    match /cashClosings/{day}   { allow read, write: if isOwner(); }
+
+    match /transactions/{id} {
+      allow read: if isOwner();
+      allow create: if isOwner() && isValidTransaction();
+      allow update: if isOwner() && isVoidingOnce();
+      allow delete: if false;
+    }
+
+    match /stockMovements/{id} {
+      allow read, create: if isOwner();
+      allow update, delete: if false;
+    }
+  }
+}
