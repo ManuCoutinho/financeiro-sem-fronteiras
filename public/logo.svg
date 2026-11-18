@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Financeiro sem Fronteiras">
+  <rect width="512" height="512" fill="#fef6e4"/>
+  <g fill="none" stroke="#001858" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <!-- setas de fluxo -->
+    <path d="M118 176 C 128 118, 178 92, 232 98"/>
+    <path d="M214 74 L 236 98 L 210 120"/>
+    <path d="M394 336 C 384 394, 334 420, 280 414"/>
+    <path d="M298 438 L 276 414 L 302 392"/>
+  </g>
+  <!-- cédula -->
+  <g transform="rotate(-8 256 256)" stroke="#001858" stroke-width="14" stroke-linejoin="round">
+    <rect x="112" y="178" width="288" height="156" rx="22" fill="#8bd3dd"/>
+    <circle cx="256" cy="256" r="40" fill="#fef6e4"/>
+    <path d="M150 214 h 26 M336 298 h 26" stroke-linecap="round"/>
+  </g>
+  <!-- moeda -->
+  <g stroke="#001858" stroke-width="14">
+    <circle cx="150" cy="330" r="56" fill="#f3d2c1"/>
+    <circle cx="150" cy="330" r="28" fill="none"/>
+  </g>
+  <!-- flor -->
+  <g stroke="#001858" stroke-width="12" fill="#f582ae">
+    <circle cx="372" cy="146" r="26"/>
+    <circle cx="412" cy="174" r="26"/>
+    <circle cx="398" cy="220" r="26"/>
+    <circle cx="346" cy="220" r="26"/>
+    <circle cx="332" cy="174" r="26"/>
+    <circle cx="372" cy="188" r="22" fill="#fef6e4"/>
+  </g>
+</svg>
