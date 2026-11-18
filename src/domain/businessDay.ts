@@ -30,3 +30,8 @@ export const getMonthRange = (month: string) => ({
   firstDay: toDay(month, 1),
   lastDay: toDay(month, getDaysInMonth(month)),
 });
+
+export function shiftMonth(month: string, offset: number): string {
+  const [year, monthNumber] = month.split('-').map(Number) as [number, number];
+  return new Date(Date.UTC(year, monthNumber - 1 + offset, 1)).toISOString().slice(0, MONTH_LENGTH);
+}
