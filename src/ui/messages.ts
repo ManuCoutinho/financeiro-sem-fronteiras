@@ -132,6 +132,39 @@ export const SETTINGS_MESSAGES = {
   settingsSaved: 'Configurações salvas',
 } as const;
 
+export const CASH_REGISTER_MESSAGES = {
+  dayLabelPattern: "EEEE, d 'de' MMMM",
+  soldToday: 'Vendido hoje',
+  netLabel: 'Líquido',
+  expensesLabel: 'Gastos',
+  closeRegister: 'Fechar o caixa',
+  dayClosed: 'Caixa de hoje fechado',
+  quickSaleTitle: 'Vendi',
+  noItems: 'Cadastre seus serviços e produtos na aba Mais para vender em um toque.',
+  goToSettings: 'Cadastrar itens',
+  dayListTitle: 'Hoje',
+  noTransactions: 'Nenhuma venda hoje ainda.',
+  voided: 'Desfeito',
+  quantityTimes: (quantity: number) => `${quantity}×`,
+} as const;
+
+export const SALE_MESSAGES = {
+  quantityLabel: 'Quantidade',
+  decreaseQuantity: 'Diminuir quantidade',
+  increaseQuantity: 'Aumentar quantidade',
+  discountLabel: 'Desconto (opcional)',
+  discountTooHigh: 'O desconto não pode passar do valor da venda.',
+  totalLabel: 'Total',
+  paymentTitle: 'Forma de pagamento',
+  paymentHint: 'Toque na forma de pagamento para registrar a venda.',
+  feeHint: (percent: string) => `taxa de ${percent}%`,
+  stockCheck: (remaining: number) => `O estoque vai ficar em ${remaining}. A venda é registrada mesmo assim.`,
+  itemNotFound: 'Este item não está mais no caixa. Volte e escolha outro.',
+  dayClosed: 'O caixa de hoje já foi fechado. Reabra o caixa para registrar novas vendas.',
+  backToRegister: 'Voltar ao caixa',
+  saleVoided: 'Venda desfeita',
+} as const;
+
 export const FORM_MESSAGES = {
   required: 'Preencha este campo.',
   tooLong: 'Use um nome mais curto.',

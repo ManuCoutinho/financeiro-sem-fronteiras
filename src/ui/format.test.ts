@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createFormatters, parseAmountToCents, parseDecimalInput } from './format';
 
-const { formatCurrency, formatDecimal, formatNumber, formatDate } = createFormatters({
+const { formatCurrency, formatDecimal, formatNumber, formatDate, formatTime, formatBusinessDay } = createFormatters({
   locale: 'pt-BR',
   currency: 'BRL',
 });
@@ -57,5 +57,18 @@ describe('parseAmountToCents', () => {
 
   it('rejects fractions of a cent', () => {
     expect(parseAmountToCents('1,234')).toBeNull();
+  });
+});
+
+describe('formatTime', () => {
+  it('shows hours and minutes', () => {
+    expect(formatTime(new Date(2026, 10, 18, 9, 5))).toBe('09:05');
+  });
+});
+
+describe('formatBusinessDay', () => {
+  it('formats a business day without shifting it to the previous day', () => {
+    expect(formatBusinessDay('2026-11-18', "EEEE, d 'de' MMMM")).toBe('quarta-feira, 18 de novembro');
+    expect(formatBusinessDay('2026-11-01')).toBe('01/11/2026');
   });
 });

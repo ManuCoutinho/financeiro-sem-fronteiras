@@ -1,9 +1,10 @@
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { env } from '../config/env';
 
 const CENTS_PER_UNIT = 100;
 const DEFAULT_DATE_PATTERN = 'dd/MM/yyyy';
+const TIME_PATTERN = 'HH:mm';
 const MAX_CENT_DIGITS = 2;
 const MAX_INPUT_FRACTION_DIGITS = 2;
 
@@ -26,10 +27,15 @@ export function createFormatters({ locale, currency }: FormatOptions) {
     formatDecimal: (cents: number) => decimalFormatter.format(cents / CENTS_PER_UNIT),
     formatNumber: (value: number) => numberFormatter.format(value),
     formatDate: (date: Date, pattern = DEFAULT_DATE_PATTERN) => format(date, pattern, { locale: ptBR }),
+    formatTime: (date: Date) => format(date, TIME_PATTERN, { locale: ptBR }),
+    // parseISO reads a bare day as local midnight, so the label never shifts to the previous day.
+    formatBusinessDay: (day: string, pattern = DEFAULT_DATE_PATTERN) =>
+      format(parseISO(day), pattern, { locale: ptBR }),
   };
 }
 
-export const { formatCurrency, formatDecimal, formatNumber, formatDate } = createFormatters(env);
+export const { formatCurrency, formatDecimal, formatNumber, formatDate, formatTime, formatBusinessDay } =
+  createFormatters(env);
 
 const THOUSANDS_ONLY = /^\d{1,3}(\.\d{3})+$/;
 const PLAIN_DECIMAL = /^\d+(\.(\d+))?$/;
