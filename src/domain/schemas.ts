@@ -3,7 +3,7 @@ import { EXPENSE_CATEGORIES, SALE_TYPES, TRANSACTION_TYPES } from './cashRegiste
 import { MANUAL_STOCK_MOVEMENT_TYPES, STOCK_MOVEMENT_TYPES } from './inventory';
 import { PAYMENT_METHODS } from './money';
 
-const NAME_MAX_LENGTH = 60;
+export const NAME_MAX_LENGTH = 60;
 const TEXT_MAX_LENGTH = 200;
 const MAX_FEE_PERCENT = 100;
 

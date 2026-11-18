@@ -97,10 +97,55 @@ export const SETTINGS_MESSAGES = {
   copyAccountId: 'Copiar ID da conta',
   accountIdCopied: 'ID da conta copiado',
   accountIdCopyFailed: 'Não deu para copiar. Selecione o texto e copie à mão.',
+  servicesTitle: 'Serviços',
+  productsTitle: 'Produtos',
+  businessTitle: 'Estúdio e maquininha',
+  toolsTitle: 'Ferramentas',
+  addService: 'Novo serviço',
+  addProduct: 'Novo produto',
+  editService: 'Editar serviço',
+  editProduct: 'Editar produto',
+  emptyServices: 'Nenhum serviço ainda. Cadastre o primeiro para registrar atendimentos em um toque.',
+  emptyProducts: 'Nenhum produto ainda. Cadastre os que você vende para o estoque baixar sozinho.',
+  hidden: 'Fora do caixa',
+  stockCount: (quantity: number) => `${quantity} em estoque`,
+  nameLabel: 'Nome',
+  priceLabel: 'Preço',
+  salePriceLabel: 'Preço de venda',
+  costLabel: 'Custo por unidade',
+  costHint: 'Quanto você pagou em cada unidade. Usado no valor do estoque.',
+  quantityLabel: 'Quantidade em estoque',
+  currentStock: (quantity: number) => `Em estoque agora: ${quantity}`,
+  stockChangeHint: 'Para mudar a quantidade, use “Chegou mercadoria” ou “Ajuste” na aba Estoque.',
+  minStockLabel: 'Avisar quando restarem',
+  minStockHint: 'O alerta “Estoque baixo” aparece nessa quantidade ou menos.',
+  expiresOnLabel: 'Validade (opcional)',
+  isActiveLabel: 'Mostrar no caixa',
+  isActiveHint: 'Desmarque para tirar do caixa sem perder o histórico de vendas.',
+  businessNameLabel: 'Nome do estúdio',
+  feesLegend: 'Taxa da maquininha (%)',
+  feesHint: 'Quanto é descontado de cada venda. Pix e dinheiro costumam ser 0.',
+  expirationAlertDaysLabel: 'Avisar validade com quantos dias de antecedência',
+  save: 'Salvar',
+  serviceSaved: 'Serviço salvo',
+  productSaved: 'Produto salvo',
+  settingsSaved: 'Configurações salvas',
+} as const;
+
+export const FORM_MESSAGES = {
+  required: 'Preencha este campo.',
+  tooLong: 'Use um nome mais curto.',
+  invalidAmount: 'Digite um valor como 60 ou 59,90.',
+  invalidPercent: 'Digite um percentual entre 0 e 100, como 3,5.',
+  invalidWholeNumber: 'Digite um número inteiro, como 0 ou 5.',
+  invalidPositiveNumber: 'Digite um número inteiro maior que zero.',
+  invalidDate: 'Escolha uma data válida.',
 } as const;
 
 export const NAVIGATION_ARIA_LABEL = 'Navegação principal';
 export const BACK_LABEL = 'Voltar';
+export const CLOSE_LABEL = 'Fechar';
+export const LOADING_LABEL = 'Carregando…';
 
 const ERROR_CODE_MESSAGES: Record<string, string> = {
   'permission-denied': MESSAGES.permissionDenied,
