@@ -1,5 +1,13 @@
-import { DesignPreviewPage } from './pages/DesignPreviewPage';
+import { RouterProvider } from 'react-router';
+import { router } from './app/router';
+import { Toaster } from './components/ui/sonner';
+import { AuthProvider } from './hooks/useAuth';
 
 export function App() {
-  return <DesignPreviewPage />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+      <Toaster />
+    </AuthProvider>
+  );
 }

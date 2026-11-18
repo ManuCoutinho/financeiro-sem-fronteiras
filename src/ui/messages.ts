@@ -60,8 +60,44 @@ export const MESSAGES = {
   permissionDenied: 'Você não tem acesso a estes dados. Entre com a conta do negócio.',
 } as const;
 
+export const AUTH_MESSAGES = {
+  tagline: 'O caixa e o estoque do seu estúdio, na palma da mão.',
+  signInWithGoogle: 'Entrar com Google',
+  signingIn: 'Entrando…',
+  signOut: 'Sair',
+  loading: 'Carregando…',
+  networkError: 'Sem internet. Conecte-se para entrar pela primeira vez.',
+  signInCancelled: 'O login foi cancelado. Toque em “Entrar com Google” para tentar de novo.',
+} as const;
+
+export const PAGE_TITLES = {
+  cashRegister: 'Caixa',
+  confirmSale: 'Confirmar venda',
+  newExpense: 'Gastei',
+  closing: 'Fechar o caixa',
+  inventory: 'Estoque',
+  product: 'Produto',
+  month: 'Mês',
+  settings: 'Mais',
+  importPricing: 'Preço do importado',
+} as const;
+
+export const SETTINGS_MESSAGES = {
+  accountTitle: 'Conta',
+  accountIdLabel: 'ID da conta',
+  copyAccountId: 'Copiar ID da conta',
+  accountIdCopied: 'ID da conta copiado',
+  accountIdCopyFailed: 'Não deu para copiar. Selecione o texto e copie à mão.',
+} as const;
+
+export const NAVIGATION_ARIA_LABEL = 'Navegação principal';
+export const BACK_LABEL = 'Voltar';
+
 const ERROR_CODE_MESSAGES: Record<string, string> = {
   'permission-denied': MESSAGES.permissionDenied,
+  'auth/network-request-failed': AUTH_MESSAGES.networkError,
+  'auth/popup-closed-by-user': AUTH_MESSAGES.signInCancelled,
+  'auth/user-cancelled': AUTH_MESSAGES.signInCancelled,
 };
 
 export function toUserMessage(error: unknown): string {
