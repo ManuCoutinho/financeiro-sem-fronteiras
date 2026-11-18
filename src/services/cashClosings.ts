@@ -5,7 +5,7 @@ import { COLLECTIONS } from './collections';
 import { db } from './firebase';
 import { commitInBackground, type Listener, type OnError, type Unsubscribe } from './snapshots';
 
-export type CashClosing = StoredCashClosing;
+export type CashClosing = StoredCashClosing & { closedAt: Date | null };
 
 const closingRef = (day: string) => doc(db, COLLECTIONS.cashClosings, day);
 
@@ -14,7 +14,9 @@ export function subscribeCashClosing(day: string, { onNext, onError }: Listener<
     closingRef(day),
     (snapshot) => {
       const result = storedCashClosingSchema.safeParse(snapshot.data());
-      onNext(result.success ? result.data : null);
+      if (!result.success) return onNext(null);
+      const closedAt = snapshot.get('closedAt', { serverTimestamps: 'estimate' }) as Timestamp | null | undefined;
+      onNext({ ...result.data, closedAt: closedAt?.toDate() ?? null });
     },
     onError,
   );
