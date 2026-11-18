@@ -251,6 +251,38 @@ export const PRODUCT_MESSAGES = {
   saved: 'Estoque atualizado',
 } as const;
 
+export const MONTH_MESSAGES = {
+  monthPattern: "MMMM 'de' yyyy",
+  previousMonth: 'Mês anterior',
+  nextMonth: 'Próximo mês',
+  revenueLabel: 'Faturamento',
+  resultLabel: 'Resultado',
+  resultHint: 'Líquido menos gastos',
+  averageTicketLabel: 'Ticket médio',
+  averageTicketHint: 'Por venda',
+  saleCount: (count: number) => (count === 1 ? '1 venda' : `${count} vendas`),
+  expensesLabel: 'Gastos',
+  expensesHint: 'Tudo o que saiu no mês',
+  mixTitle: 'Serviços x produtos',
+  dailyTitle: 'Vendas por dia',
+  dailyHint: 'Toque numa barra para ver o valor do dia.',
+  bestDay: (day: string, amount: string) => `Melhor dia: ${day}, ${amount}`,
+  selectedDay: (day: string, amount: string) => `${day}: ${amount}`,
+  dayColumn: 'Dia',
+  amountColumn: 'Vendido',
+  topItemsTitle: 'Mais vendidos',
+  topItemDetail: (quantity: number, amount: string) => `${quantity}× · ${amount}`,
+  noSales: 'Nenhuma venda neste mês.',
+  detailsTitle: 'Outros números',
+  feesLabel: 'Taxas da maquininha',
+  netLabel: 'Líquido',
+  stockValueLabel: 'Valor em estoque hoje',
+  stockValueHint: 'Quantidade de cada produto vezes o custo dele.',
+  export: 'Baixar planilha (CSV)',
+  exportHint: 'Abre no Google Planilhas ou no Excel. Lançamentos desfeitos ficam de fora.',
+  fileName: (month: string) => `financeiro-${month}.csv`,
+} as const;
+
 export const FORM_MESSAGES = {
   required: 'Preencha este campo.',
   tooLong: 'Use um nome mais curto.',

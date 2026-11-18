@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayToDate, getMonthDays, getMonthRange, toBusinessDay, toBusinessMonth } from './businessDay';
+import { dayToDate, getMonthDays, getMonthRange, shiftMonth, toBusinessDay, toBusinessMonth } from './businessDay';
 
 describe('toBusinessDay', () => {
   it('uses the local day of the given time zone', () => {
@@ -38,5 +38,13 @@ describe('getMonthDays', () => {
 describe('getMonthRange', () => {
   it('returns the first and last day of the month', () => {
     expect(getMonthRange('2026-12')).toEqual({ firstDay: '2026-12-01', lastDay: '2026-12-31' });
+  });
+});
+
+describe('shiftMonth', () => {
+  it('moves across year boundaries', () => {
+    expect(shiftMonth('2026-01', -1)).toBe('2025-12');
+    expect(shiftMonth('2026-12', 1)).toBe('2027-01');
+    expect(shiftMonth('2026-11', 0)).toBe('2026-11');
   });
 });

@@ -6,6 +6,7 @@ import { CloseCashRegisterPage } from '@/pages/CloseCashRegisterPage';
 import { ConfirmSalePage } from '@/pages/ConfirmSalePage';
 import { InventoryPage } from '@/pages/InventoryPage';
 import { LoginPage } from '@/pages/LoginPage';
+import { MonthlySummaryPage } from '@/pages/MonthlySummaryPage';
 import { NewExpensePage } from '@/pages/NewExpensePage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 import { ProductPage } from '@/pages/ProductPage';
@@ -27,7 +28,7 @@ export const router = createBrowserRouter([
         children: [
           { path: PATHS.cashRegister, element: <CashRegisterPage /> },
           { path: PATHS.inventory, element: <InventoryPage /> },
-          { path: PATHS.month, element: <PlaceholderPage title={PAGE_TITLES.month} /> },
+          { path: PATHS.month, element: <MonthlySummaryPage /> },
           { path: PATHS.settings, element: <SettingsPage /> },
         ],
       },

@@ -18,6 +18,8 @@ const options = {
   delimiter: ';',
   header: ['day', 'type'],
   formatAmount: (cents: number) => (cents / 100).toFixed(2).replace('.', ','),
+  typeLabels: { service: 'Serviço', product: 'Produto', expense: 'Despesa' },
+  paymentMethodLabels: { pix: 'Pix', cash: 'Dinheiro', debit: 'Débito', credit: 'Crédito' },
 };
 
 describe('transactionsToCsv', () => {
@@ -27,7 +29,7 @@ describe('transactionsToCsv', () => {
 
   it('escapes quotes and formats amounts', () => {
     const [, line] = transactionsToCsv([row], options).split('\n');
-    expect(line).toBe('2026-11-12;product;"Sérum ""importado""";2;credit;80,00;0,00;2,80;77,20');
+    expect(line).toBe('2026-11-12;Produto;"Sérum ""importado""";2;Crédito;80,00;0,00;2,80;77,20');
   });
 
   it('skips voided transactions', () => {
