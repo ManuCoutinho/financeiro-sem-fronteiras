@@ -15,6 +15,11 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
+        workbox: {
+          // /__/ is Firebase Hosting's reserved namespace (auth handler for the Google redirect);
+          // serving the app shell there breaks sign-in once the service worker is installed.
+          navigateFallbackDenylist: [/^\/__\//],
+        },
         includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
         manifest: {
           name: env.VITE_APP_NAME,
