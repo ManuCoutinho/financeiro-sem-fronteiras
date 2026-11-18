@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import '@fontsource-variable/urbanist';
 import { App } from './App';
 import { env } from './config/env';
 import './index.css';

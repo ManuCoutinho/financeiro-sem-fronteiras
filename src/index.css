@@ -1,14 +1,104 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
-@theme {
-  --color-brand: var(--app-theme-color);
-  --color-income: #15803d;
-  --color-expense: #b91c1c;
-  --color-warning: #a16207;
-  --color-voided: #6b7280;
+/*
+ * Paleta da marca. Rosa (--primary) e azul-claro (--secondary) não passam
+ * 4,5:1 sobre o creme: só servem de preenchimento, com texto azul-marinho.
+ * As cores de estado foram escolhidas para passar 4,5:1 sobre o creme, o
+ * branco e os fundos suaves de selo.
+ */
+:root {
+  --radius: 1rem;
+
+  --background: #fef6e4;
+  --foreground: #001858;
+  --card: #ffffff;
+  --card-foreground: #001858;
+  --popover: #ffffff;
+  --popover-foreground: #001858;
+  --primary: var(--app-theme-color, #f582ae);
+  --primary-foreground: #001858;
+  --secondary: #8bd3dd;
+  --secondary-foreground: #001858;
+  --muted: #f3d2c1;
+  --muted-foreground: #172c66;
+  --accent: #f3d2c1;
+  --accent-foreground: #001858;
+  --destructive: #a3303f;
+  --border: #001858;
+  --input: #001858;
+  --ring: #001858;
+
+  --income: #17643f;
+  --income-soft: #d6f0e0;
+  --expense: #a3303f;
+  --expense-soft: #fcdde0;
+  --warning: #8a5a00;
+  --warning-soft: #fbe9b7;
+  --voided: #5b6478;
+  --voided-soft: #e7e5e0;
+
+  --chart-1: #f582ae;
+  --chart-2: #8bd3dd;
+  --chart-3: #f3d2c1;
+  --chart-4: #172c66;
+  --chart-5: #001858;
+}
+
+@theme inline {
+  --font-sans: 'Urbanist Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 8px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-income: var(--income);
+  --color-income-soft: var(--income-soft);
+  --color-expense: var(--expense);
+  --color-expense-soft: var(--expense-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-voided: var(--voided);
+  --color-voided-soft: var(--voided-soft);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
   --spacing-touch: 2.75rem;
 }
 
-html {
-  font-size: 100%;
+@layer base {
+  * {
+    @apply border-border/15 outline-ring;
+  }
+  html {
+    font-size: 100%;
+  }
+  body {
+    @apply bg-background font-sans text-base text-foreground antialiased;
+  }
 }
