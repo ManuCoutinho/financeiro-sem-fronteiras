@@ -1,10 +1,11 @@
 import { Lock, Plus, Receipt, Wallet } from 'lucide-react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { PATHS } from '@/app/paths';
 import { DaySummaryCard } from '@/components/cashRegister/DaySummaryCard';
 import { ItemGrid } from '@/components/cashRegister/ItemGrid';
 import { TransactionList } from '@/components/cashRegister/TransactionList';
+import { UndoDialog } from '@/components/cashRegister/UndoDialog';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import { useCashClosing } from '@/hooks/useCashClosing';
 import { useProducts, useServices } from '@/hooks/useCatalog';
 import { useToday } from '@/hooks/useToday';
 import { useDailyTransactions } from '@/hooks/useTransactions';
+import type { Transaction } from '@/services/transactions';
 import { formatBusinessDay } from '@/ui/format';
 import { CASH_REGISTER_MESSAGES, LOADING_LABEL, PAGE_TITLES, SETTINGS_MESSAGES } from '@/ui/messages';
 
@@ -38,6 +40,7 @@ export function CashRegisterPage() {
   const products = useProducts();
   const transactions = useDailyTransactions(today);
   const closing = useCashClosing(today);
+  const [pendingUndo, setPendingUndo] = useState<Transaction | null>(null);
 
   const summary = useMemo(() => summarizeCashRegister(transactions.data), [transactions.data]);
   const serviceItems = services.data
@@ -112,9 +115,13 @@ export function CashRegisterPage() {
         </CardHeader>
         <CardContent>
           <LoadState isLoading={transactions.isLoading} error={transactions.error} />
-          {!transactions.isLoading && <TransactionList transactions={transactions.data} />}
+          {!transactions.isLoading && <TransactionList transactions={transactions.data} onUndo={setPendingUndo} />}
         </CardContent>
       </Card>
+
+      {pendingUndo && (
+        <UndoDialog transaction={pendingUndo} isDayClosed={closing.isClosed} onClose={() => setPendingUndo(null)} />
+      )}
     </>
   );
 }
