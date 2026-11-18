@@ -1,4 +1,4 @@
-import type { TransactionType } from '../domain/cashRegister';
+import type { ExpenseCategory, TransactionType } from '../domain/cashRegister';
 import type { StockAlertType, StockMovementType } from '../domain/inventory';
 import type { PaymentMethod } from '../domain/money';
 
@@ -13,6 +13,15 @@ export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   service: 'Serviço',
   product: 'Produto',
   expense: 'Despesa',
+};
+
+export const EXPENSE_CATEGORY_LABELS: Record<ExpenseCategory, string> = {
+  supplies: 'Material',
+  rent: 'Aluguel',
+  bills: 'Contas (água, luz, internet)',
+  marketing: 'Divulgação',
+  transport: 'Transporte',
+  other: 'Outros',
 };
 
 export const STOCK_MOVEMENT_LABELS: Record<StockMovementType, string> = {

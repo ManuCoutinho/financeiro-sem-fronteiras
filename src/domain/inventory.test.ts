@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getStockAlerts, type StockItem } from './inventory';
+import { getStockAlerts, toSignedQuantity, type StockItem } from './inventory';
 
 const TODAY = new Date('2026-11-12T12:00:00Z');
 const ALERT_DAYS = 30;
@@ -48,5 +48,21 @@ describe('getStockAlerts', () => {
 
   it('returns no alerts for healthy stock', () => {
     expect(getStockAlerts([buildItem({ expiresOn: daysFromToday(90) })], TODAY, ALERT_DAYS)).toEqual([]);
+  });
+});
+
+describe('toSignedQuantity', () => {
+  it('adds restocked units', () => {
+    expect(toSignedQuantity('restock', 5)).toBe(5);
+    expect(toSignedQuantity('restock', -5)).toBe(5);
+  });
+
+  it('removes units used in a service', () => {
+    expect(toSignedQuantity('usage', 2)).toBe(-2);
+  });
+
+  it('keeps the sign chosen for an adjustment', () => {
+    expect(toSignedQuantity('adjustment', -3)).toBe(-3);
+    expect(toSignedQuantity('adjustment', 3)).toBe(3);
   });
 });
