@@ -10,7 +10,7 @@ import {
   type ServiceInput,
 } from '@/domain/schemas';
 import { BUSINESS_SETTINGS_DOC_ID, COLLECTIONS } from './collections';
-import { db } from './firebase';
+import { db } from './firestore';
 import { commitInBackground, parseDocs, type Listener, type OnError, type Unsubscribe } from './snapshots';
 
 const SORT_FIELD = 'sortOrder';

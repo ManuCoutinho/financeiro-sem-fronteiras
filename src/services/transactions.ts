@@ -10,7 +10,7 @@ import {
   type StoredTransaction,
 } from '@/domain/schemas';
 import { COLLECTIONS } from './collections';
-import { db } from './firebase';
+import { db } from './firestore';
 import {
   commitInBackground,
   parseSyncedDocs,

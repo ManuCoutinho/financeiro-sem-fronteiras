@@ -9,7 +9,7 @@ const batch = vi.hoisted(() => ({
   commit: vi.fn(() => Promise.resolve()),
 }));
 
-vi.mock('./firebase', () => ({ db: {} }));
+vi.mock('./firestore', () => ({ db: {} }));
 
 vi.mock('firebase/firestore', () => ({
   collection: (_db: unknown, name: string) => ({ name }),
