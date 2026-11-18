@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getStockAlerts, toSignedQuantity, type StockItem } from './inventory';
+import { getStockAlerts, groupStockAlerts, toSignedQuantity, type StockItem } from './inventory';
 
 const TODAY = new Date('2026-11-12T12:00:00Z');
 const ALERT_DAYS = 30;
@@ -64,5 +64,18 @@ describe('toSignedQuantity', () => {
   it('keeps the sign chosen for an adjustment', () => {
     expect(toSignedQuantity('adjustment', -3)).toBe(-3);
     expect(toSignedQuantity('adjustment', 3)).toBe(3);
+  });
+});
+
+describe('groupStockAlerts', () => {
+  it('collects every alert of a product in order', () => {
+    const grouped = groupStockAlerts([
+      { productId: 'serum', type: 'low' },
+      { productId: 'glue', type: 'expired' },
+      { productId: 'serum', type: 'expiringSoon' },
+    ]);
+    expect(grouped.get('serum')).toEqual(['low', 'expiringSoon']);
+    expect(grouped.get('glue')).toEqual(['expired']);
+    expect(grouped.has('tint')).toBe(false);
   });
 });

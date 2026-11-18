@@ -221,6 +221,36 @@ export const CLOSING_MESSAGES = {
   reopenHint: 'Reabra para registrar ou desfazer lançamentos de hoje. A reabertura fica registrada.',
 } as const;
 
+export const INVENTORY_MESSAGES = {
+  needsAttention: (count: number) =>
+    count === 1 ? '1 produto precisa de atenção' : `${count} produtos precisam de atenção`,
+  allGood: 'Tudo certo com o estoque.',
+  noProducts: 'Nenhum produto ainda. Cadastre os que você vende para acompanhar o estoque aqui.',
+  goToSettings: 'Cadastrar produtos',
+  expiresOn: (date: string) => `vence ${date}`,
+} as const;
+
+export const PRODUCT_MESSAGES = {
+  inStockLabel: 'Em estoque',
+  minStock: (quantity: number) => `Aviso com ${quantity} ou menos`,
+  expiresOn: (date: string) => `Validade: ${date}`,
+  notFound: 'Produto não encontrado. Volte ao estoque e escolha outro.',
+  backToInventory: 'Voltar ao estoque',
+  historyTitle: 'Histórico',
+  noMovements: 'Nenhuma movimentação ainda.',
+  quantityLabel: 'Quantas unidades?',
+  usageHint: 'Sai do estoque sem gerar venda no caixa.',
+  countedLabel: 'Quantas unidades você tem agora?',
+  countedHint: (quantity: number) => `No app estão ${quantity}. O ajuste corrige a diferença.`,
+  sameQuantity: 'É a mesma quantidade de agora.',
+  reasonLabel: 'Motivo',
+  reasonHint: 'Por exemplo: perda, avaria ou contagem.',
+  reasonRequired: 'Conte o motivo do ajuste.',
+  noteLabel: 'Observação (opcional)',
+  save: 'Salvar',
+  saved: 'Estoque atualizado',
+} as const;
+
 export const FORM_MESSAGES = {
   required: 'Preencha este campo.',
   tooLong: 'Use um nome mais curto.',

@@ -6,6 +6,7 @@ import { DaySummaryCard } from '@/components/cashRegister/DaySummaryCard';
 import { ItemGrid } from '@/components/cashRegister/ItemGrid';
 import { TransactionList } from '@/components/cashRegister/TransactionList';
 import { UndoDialog } from '@/components/cashRegister/UndoDialog';
+import { LoadState } from '@/components/LoadState';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,22 +18,7 @@ import { useToday } from '@/hooks/useToday';
 import { useDailyTransactions } from '@/hooks/useTransactions';
 import type { Transaction } from '@/services/transactions';
 import { formatBusinessDay } from '@/ui/format';
-import { CASH_REGISTER_MESSAGES, LOADING_LABEL, PAGE_TITLES, SETTINGS_MESSAGES } from '@/ui/messages';
-
-function LoadState({ isLoading, error }: { isLoading: boolean; error: string | null }) {
-  if (error) {
-    return (
-      <p role="alert" className="font-medium text-destructive">
-        {error}
-      </p>
-    );
-  }
-  return isLoading ? (
-    <p role="status" className="text-muted-foreground">
-      {LOADING_LABEL}
-    </p>
-  ) : null;
-}
+import { CASH_REGISTER_MESSAGES, PAGE_TITLES, SETTINGS_MESSAGES } from '@/ui/messages';
 
 export function CashRegisterPage() {
   const today = useToday();

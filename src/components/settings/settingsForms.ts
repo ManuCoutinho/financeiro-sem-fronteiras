@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { PAYMENT_METHODS } from '@/domain/money';
 import { NAME_MAX_LENGTH, type BusinessSettings, type Product, type Service } from '@/domain/schemas';
+import { positiveWholeNumber, wholeNumber } from '@/lib/formFields';
 import { formatDecimal, formatNumber, parseAmountToCents, parseDecimalInput } from '@/ui/format';
 import { FORM_MESSAGES } from '@/ui/messages';
 
 const MAX_PERCENT = 100;
-const WHOLE_NUMBER = /^\d+$/;
 const BUSINESS_DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 const name = z
@@ -27,14 +27,6 @@ const percent = z.string().transform((text, context) => {
   context.addIssue({ code: 'custom', message: FORM_MESSAGES.invalidPercent });
   return z.NEVER;
 });
-
-const wholeNumber = z
-  .string()
-  .trim()
-  .regex(WHOLE_NUMBER, { error: FORM_MESSAGES.invalidWholeNumber })
-  .transform(Number);
-
-const positiveWholeNumber = wholeNumber.refine((value) => value > 0, { error: FORM_MESSAGES.invalidPositiveNumber });
 
 const optionalDay = z
   .string()
