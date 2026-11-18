@@ -3,8 +3,8 @@ export type StockMovementType = (typeof STOCK_MOVEMENT_TYPES)[number];
 
 export const MANUAL_STOCK_MOVEMENT_TYPES = [
   'restock',
-  'adjustment',
   'usage',
+  'adjustment',
 ] as const satisfies readonly StockMovementType[];
 export type ManualStockMovementType = (typeof MANUAL_STOCK_MOVEMENT_TYPES)[number];
 
@@ -42,4 +42,10 @@ export function toSignedQuantity(type: ManualStockMovementType, quantity: number
   if (type === 'restock') return Math.abs(quantity);
   if (type === 'usage') return -Math.abs(quantity);
   return quantity;
+}
+
+export function groupStockAlerts(alerts: StockAlert[]): Map<string, StockAlertType[]> {
+  const byProduct = new Map<string, StockAlertType[]>();
+  for (const { productId, type } of alerts) byProduct.set(productId, [...(byProduct.get(productId) ?? []), type]);
+  return byProduct;
 }
