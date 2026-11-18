@@ -9,10 +9,13 @@ export type ImportPurchase = {
   quantity: number;
 };
 
-export function calculateUnitCostCents(purchase: ImportPurchase): number {
+export function calculateTotalCostCents(purchase: ImportPurchase): number {
   const purchaseCents = Math.round(purchase.foreignAmount * purchase.exchangeRate * CENTS_PER_UNIT);
-  return Math.round((purchaseCents + purchase.shippingCents + purchase.taxesCents) / purchase.quantity);
+  return purchaseCents + purchase.shippingCents + purchase.taxesCents;
 }
+
+export const calculateUnitCostCents = (purchase: ImportPurchase) =>
+  Math.round(calculateTotalCostCents(purchase) / purchase.quantity);
 
 export const calculateMarginPercent = (salePriceCents: number, costCents: number) =>
   ((salePriceCents - costCents) / salePriceCents) * PERCENT;

@@ -64,7 +64,6 @@ export const MESSAGES = {
   pendingSync: 'Aguardando envio',
   offlineSaleSaved: 'Sem internet. A venda foi salva e será enviada quando a conexão voltar.',
   dayClosedReopenFirst: 'Este dia já foi fechado. Reabra o caixa para desfazer.',
-  underConstruction: 'Em construção. Em breve, o caixa do dia aparece aqui.',
   unexpectedError: 'Algo deu errado. Tente de novo; se continuar, feche e abra o app.',
   permissionDenied: 'Você não tem acesso a estes dados. Entre com a conta do negócio.',
 } as const;
@@ -281,6 +280,33 @@ export const MONTH_MESSAGES = {
   export: 'Baixar planilha (CSV)',
   exportHint: 'Abre no Google Planilhas ou no Excel. Lançamentos desfeitos ficam de fora.',
   fileName: (month: string) => `financeiro-${month}.csv`,
+} as const;
+
+export const IMPORT_PRICING_MESSAGES = {
+  purchaseTitle: 'A compra',
+  foreignAmountLabel: 'Quanto pagou na loja (em dólar, euro…)',
+  foreignAmountHint: 'O total da compra na moeda da loja, como 100 ou 99,90.',
+  exchangeRateLabel: 'Câmbio',
+  exchangeRateHint: 'Quantos reais custou cada dólar (ou euro), como 5,50.',
+  shippingLabel: 'Frete em reais (opcional)',
+  taxesLabel: 'Taxas e impostos em reais (opcional)',
+  quantityLabel: 'Quantas unidades vieram',
+  invalidNumber: 'Digite um número como 100 ou 5,50.',
+  costTitle: 'Custo real',
+  unitCostLabel: 'Custo por unidade',
+  totalCostLabel: 'Total da compra',
+  fillPurchase: 'Preencha a compra para ver o custo de cada unidade.',
+  priceTitle: 'Preço de venda',
+  productLabel: 'Produto (opcional)',
+  productHint: 'Escolha um produto para usar o preço atual dele.',
+  noProduct: 'Nenhum',
+  salePriceLabel: 'Preço de venda',
+  marginLabel: 'Margem',
+  profitLabel: 'Lucro por unidade',
+  marginHint: 'Quanto do preço de venda sobra depois do custo, sem contar a taxa da maquininha.',
+  fillPrice: 'Digite o preço de venda para ver a margem.',
+  saveCost: 'Salvar como custo do produto',
+  costSaved: 'Custo salvo no produto',
 } as const;
 
 export const FORM_MESSAGES = {

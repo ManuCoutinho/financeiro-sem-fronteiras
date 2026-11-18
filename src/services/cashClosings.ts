@@ -2,7 +2,7 @@ import { arrayUnion, doc, onSnapshot, serverTimestamp, setDoc, Timestamp, update
 import { buildCashClosing, type CashCount, type Transaction } from '@/domain/cashRegister';
 import { cashCountSchema, storedCashClosingSchema, type StoredCashClosing } from '@/domain/schemas';
 import { COLLECTIONS } from './collections';
-import { db } from './firebase';
+import { db } from './firestore';
 import { commitInBackground, type Listener, type OnError, type Unsubscribe } from './snapshots';
 
 export type CashClosing = StoredCashClosing & { closedAt: Date | null };

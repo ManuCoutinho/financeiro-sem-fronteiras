@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
         manifest: {
           name: env.VITE_APP_NAME,
           short_name: env.VITE_APP_SHORT_NAME,
+          description: env.VITE_APP_DESCRIPTION,
           lang: env.VITE_LOCALE,
           start_url: '/',
           display: 'standalone',

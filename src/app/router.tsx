@@ -1,18 +1,15 @@
+import type { ComponentType } from 'react';
 import { createBrowserRouter, Navigate, Outlet } from 'react-router';
 import { FlowLayout, TabLayout } from '@/components/AppShell';
 import { RequireAuth } from '@/components/RequireAuth';
-import { CashRegisterPage } from '@/pages/CashRegisterPage';
-import { CloseCashRegisterPage } from '@/pages/CloseCashRegisterPage';
-import { ConfirmSalePage } from '@/pages/ConfirmSalePage';
-import { InventoryPage } from '@/pages/InventoryPage';
+import { SplashScreen } from '@/components/SplashScreen';
 import { LoginPage } from '@/pages/LoginPage';
-import { MonthlySummaryPage } from '@/pages/MonthlySummaryPage';
-import { NewExpensePage } from '@/pages/NewExpensePage';
-import { PlaceholderPage } from '@/pages/PlaceholderPage';
-import { ProductPage } from '@/pages/ProductPage';
-import { SettingsPage } from '@/pages/SettingsPage';
-import { PAGE_TITLES } from '@/ui/messages';
 import { PATHS } from './paths';
+
+// Screens load on demand so the login screen ships without Firestore and the other pages.
+const page =
+  <Name extends string>(load: () => Promise<Record<Name, ComponentType>>, name: Name) =>
+  async () => ({ Component: (await load())[name] });
 
 export const router = createBrowserRouter([
   { path: PATHS.login, element: <LoginPage /> },
@@ -22,26 +19,30 @@ export const router = createBrowserRouter([
         <Outlet />
       </RequireAuth>
     ),
+    HydrateFallback: SplashScreen,
     children: [
       {
         element: <TabLayout />,
         children: [
-          { path: PATHS.cashRegister, element: <CashRegisterPage /> },
-          { path: PATHS.inventory, element: <InventoryPage /> },
-          { path: PATHS.month, element: <MonthlySummaryPage /> },
-          { path: PATHS.settings, element: <SettingsPage /> },
+          { path: PATHS.cashRegister, lazy: page(() => import('@/pages/CashRegisterPage'), 'CashRegisterPage') },
+          { path: PATHS.inventory, lazy: page(() => import('@/pages/InventoryPage'), 'InventoryPage') },
+          { path: PATHS.month, lazy: page(() => import('@/pages/MonthlySummaryPage'), 'MonthlySummaryPage') },
+          { path: PATHS.settings, lazy: page(() => import('@/pages/SettingsPage'), 'SettingsPage') },
         ],
       },
       {
         element: <FlowLayout />,
         children: [
-          { path: PATHS.confirmSale, element: <ConfirmSalePage /> },
-          { path: PATHS.newExpense, element: <NewExpensePage /> },
-          { path: PATHS.closing, element: <CloseCashRegisterPage /> },
-          { path: PATHS.product, element: <ProductPage /> },
+          { path: PATHS.confirmSale, lazy: page(() => import('@/pages/ConfirmSalePage'), 'ConfirmSalePage') },
+          { path: PATHS.newExpense, lazy: page(() => import('@/pages/NewExpensePage'), 'NewExpensePage') },
+          {
+            path: PATHS.closing,
+            lazy: page(() => import('@/pages/CloseCashRegisterPage'), 'CloseCashRegisterPage'),
+          },
+          { path: PATHS.product, lazy: page(() => import('@/pages/ProductPage'), 'ProductPage') },
           {
             path: PATHS.importPricing,
-            element: <PlaceholderPage title={PAGE_TITLES.importPricing} hasBackButton />,
+            lazy: page(() => import('@/pages/ImportPricingPage'), 'ImportPricingPage'),
           },
         ],
       },
