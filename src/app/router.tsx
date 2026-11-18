@@ -2,8 +2,10 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router';
 import { FlowLayout, TabLayout } from '@/components/AppShell';
 import { RequireAuth } from '@/components/RequireAuth';
 import { CashRegisterPage } from '@/pages/CashRegisterPage';
+import { CloseCashRegisterPage } from '@/pages/CloseCashRegisterPage';
 import { ConfirmSalePage } from '@/pages/ConfirmSalePage';
 import { LoginPage } from '@/pages/LoginPage';
+import { NewExpensePage } from '@/pages/NewExpensePage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { PAGE_TITLES } from '@/ui/messages';
@@ -31,8 +33,8 @@ export const router = createBrowserRouter([
         element: <FlowLayout />,
         children: [
           { path: PATHS.confirmSale, element: <ConfirmSalePage /> },
-          { path: PATHS.newExpense, element: <PlaceholderPage title={PAGE_TITLES.newExpense} hasBackButton /> },
-          { path: PATHS.closing, element: <PlaceholderPage title={PAGE_TITLES.closing} hasBackButton /> },
+          { path: PATHS.newExpense, element: <NewExpensePage /> },
+          { path: PATHS.closing, element: <CloseCashRegisterPage /> },
           { path: PATHS.product, element: <PlaceholderPage title={PAGE_TITLES.product} hasBackButton /> },
           {
             path: PATHS.importPricing,

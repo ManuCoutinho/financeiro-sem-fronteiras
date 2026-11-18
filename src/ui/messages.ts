@@ -165,6 +165,62 @@ export const SALE_MESSAGES = {
   saleVoided: 'Venda desfeita',
 } as const;
 
+export const EXPENSE_MESSAGES = {
+  categoryLegend: 'Com o quê?',
+  amountLabel: 'Valor',
+  descriptionLabel: 'Descrição (opcional)',
+  descriptionHint: 'Por exemplo: luvas, cola de cílios, conta de luz.',
+  paymentLegend: 'Como pagou?',
+  paymentHint: 'Pagamentos em dinheiro saem da gaveta no fechamento.',
+  chooseCategory: 'Escolha com o quê foi o gasto.',
+  choosePayment: 'Escolha como pagou.',
+  invalidAmount: 'Digite um valor maior que zero, como 15 ou 15,90.',
+  save: 'Registrar gasto',
+  registered: 'Gasto registrado',
+  voided: 'Gasto desfeito',
+  dayClosed: 'O caixa de hoje já foi fechado. Reabra o caixa para registrar gastos.',
+} as const;
+
+export const UNDO_MESSAGES = {
+  undoLabel: (description: string) => `Desfazer ${description}`,
+  confirmTitle: 'Desfazer este lançamento?',
+  confirmSale: 'Ele sai dos totais do dia. Se for produto, a quantidade volta ao estoque.',
+  confirmExpense: 'O gasto sai dos totais do dia.',
+  confirm: 'Desfazer',
+  cancel: 'Cancelar',
+  closedTitle: 'Este dia já foi fechado',
+  closedDescription: 'Para desfazer, o caixa é reaberto e a reabertura fica registrada. Depois, feche o caixa de novo.',
+  reopenAndUndo: 'Reabrir e desfazer',
+  done: 'Lançamento desfeito',
+} as const;
+
+export const CLOSING_MESSAGES = {
+  byMethodTitle: 'Recebido por forma de pagamento',
+  salesLabel: 'Total vendido',
+  feesLabel: 'Taxas da maquininha',
+  netLabel: 'Líquido',
+  expensesLabel: 'Gastos',
+  resultLabel: 'Resultado do dia',
+  drawerTitle: 'Dinheiro na gaveta',
+  openingCashLabel: 'Troco inicial',
+  openingCashHint: 'Quanto havia na gaveta quando o dia começou.',
+  expectedCashLabel: 'Dinheiro esperado',
+  expectedCashHint: 'Troco inicial + vendas em dinheiro − gastos pagos em dinheiro.',
+  countedCashLabel: 'Dinheiro contado',
+  countedCashHint: 'Conte o dinheiro da gaveta e digite aqui.',
+  differenceLabel: 'Diferença',
+  differenceBalanced: 'Bateu certinho',
+  differenceOver: (amount: string) => `Sobrou ${amount}`,
+  differenceShort: (amount: string) => `Faltou ${amount}`,
+  confirm: 'Confirmar fechamento',
+  closed: 'Caixa fechado',
+  closedAt: (time: string) => `Fechado às ${time}`,
+  reopenings: (count: number) => (count === 1 ? 'Reaberto 1 vez' : `Reaberto ${count} vezes`),
+  reopen: 'Reabrir o caixa',
+  reopened: 'Caixa reaberto',
+  reopenHint: 'Reabra para registrar ou desfazer lançamentos de hoje. A reabertura fica registrada.',
+} as const;
+
 export const FORM_MESSAGES = {
   required: 'Preencha este campo.',
   tooLong: 'Use um nome mais curto.',
