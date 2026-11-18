@@ -8,7 +8,7 @@ import { deleteDoc, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'fire
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 import { renderRules } from '../../scripts/renderRules.mjs';
 import { PAYMENT_METHODS } from '../../src/domain/money';
-import { TRANSACTION_TYPES } from '../../src/domain/cashRegister';
+import { EXPENSE_CATEGORIES, TRANSACTION_TYPES } from '../../src/domain/cashRegister';
 import { COLLECTIONS } from '../../src/services/collections';
 
 const OWNER_UID = 'ownerTestUid';
@@ -82,6 +82,7 @@ describe('transactions', () => {
             ...validTransaction,
             type,
             paymentMethod,
+            expenseCategory: type === 'expense' ? EXPENSE_CATEGORIES[0] : null,
           }),
         );
       }
@@ -135,5 +136,57 @@ describe('stock movements', () => {
     await assertSucceeds(setDoc(movementRef, { productId: 'serum', type: 'restock', quantity: 10, day: OPEN_DAY }));
     await assertFails(updateDoc(movementRef, { quantity: 11 }));
     await assertFails(deleteDoc(movementRef));
+  });
+});
+
+describe('expenses', () => {
+  const validExpense = {
+    ...validTransaction,
+    type: 'expense',
+    itemId: 'supplies',
+    description: '',
+    expenseCategory: 'supplies',
+  };
+
+  it('accepts every domain category', async () => {
+    for (const expenseCategory of EXPENSE_CATEGORIES) {
+      await assertSucceeds(
+        setDoc(doc(ownerDb(), COLLECTIONS.transactions, `expense-${expenseCategory}`), {
+          ...validExpense,
+          expenseCategory,
+        }),
+      );
+    }
+  });
+
+  it('rejects unknown or missing categories', async () => {
+    await assertFails(
+      setDoc(doc(ownerDb(), COLLECTIONS.transactions, 't1'), { ...validExpense, expenseCategory: 'party' }),
+    );
+    await assertFails(
+      setDoc(doc(ownerDb(), COLLECTIONS.transactions, 't2'), { ...validExpense, expenseCategory: null }),
+    );
+  });
+});
+
+describe('cash closings', () => {
+  it('allow voiding again once the day is reopened', async () => {
+    await seed(`${COLLECTIONS.transactions}/t1`, { ...validTransaction, day: CLOSED_DAY });
+    await assertSucceeds(updateDoc(doc(ownerDb(), COLLECTIONS.cashClosings, CLOSED_DAY), { isClosed: false }));
+    await assertSucceeds(
+      updateDoc(doc(ownerDb(), COLLECTIONS.transactions, 't1'), { isVoided: true, voidedAt: serverTimestamp() }),
+    );
+  });
+
+  it('are owner-only', async () => {
+    await assertFails(getDoc(doc(strangerDb(), COLLECTIONS.cashClosings, CLOSED_DAY)));
+  });
+});
+
+describe('products', () => {
+  it('let the owner change the stock and keep strangers out', async () => {
+    await seed(`${COLLECTIONS.products}/serum`, { name: 'Sérum', quantity: 1 });
+    await assertSucceeds(updateDoc(doc(ownerDb(), COLLECTIONS.products, 'serum'), { quantity: 0 }));
+    await assertFails(updateDoc(doc(strangerDb(), COLLECTIONS.products, 'serum'), { quantity: 5 }));
   });
 });
