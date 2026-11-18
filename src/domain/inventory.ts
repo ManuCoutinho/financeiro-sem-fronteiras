@@ -1,6 +1,13 @@
 export const STOCK_MOVEMENT_TYPES = ['restock', 'sale', 'adjustment', 'usage', 'reversal'] as const;
 export type StockMovementType = (typeof STOCK_MOVEMENT_TYPES)[number];
 
+export const MANUAL_STOCK_MOVEMENT_TYPES = [
+  'restock',
+  'adjustment',
+  'usage',
+] as const satisfies readonly StockMovementType[];
+export type ManualStockMovementType = (typeof MANUAL_STOCK_MOVEMENT_TYPES)[number];
+
 export const STOCK_ALERT_TYPES = ['negative', 'low', 'expired', 'expiringSoon'] as const;
 export type StockAlertType = (typeof STOCK_ALERT_TYPES)[number];
 
@@ -29,4 +36,10 @@ export function getStockAlerts(items: StockItem[], today: Date, alertDays: numbe
       .filter((type): type is StockAlertType => type !== null)
       .map((type) => ({ productId: item.id, type })),
   );
+}
+
+export function toSignedQuantity(type: ManualStockMovementType, quantity: number): number {
+  if (type === 'restock') return Math.abs(quantity);
+  if (type === 'usage') return -Math.abs(quantity);
+  return quantity;
 }

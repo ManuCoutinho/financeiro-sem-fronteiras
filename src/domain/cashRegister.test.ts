@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { summarizeCashRegister, type Transaction } from './cashRegister';
+import { buildCashClosing, isDayClosed, summarizeCashRegister, type Transaction } from './cashRegister';
 
 const buildTransaction = (overrides: Partial<Transaction>): Transaction => ({
   type: 'service',
@@ -47,5 +47,33 @@ describe('summarizeCashRegister', () => {
     const summary = summarizeCashRegister([], 2000);
     expect(summary.salesCents).toBe(0);
     expect(summary.expectedCashCents).toBe(2000);
+  });
+});
+
+describe('buildCashClosing', () => {
+  it('compares the counted cash with the expected cash', () => {
+    const closing = buildCashClosing(
+      [
+        buildTransaction({ paymentMethod: 'cash', grossCents: 4000, netCents: 4000 }),
+        buildTransaction({ type: 'expense', paymentMethod: 'cash', grossCents: 1000, netCents: 1000 }),
+      ],
+      { openingCashCents: 2000, countedCashCents: 4500 },
+    );
+
+    expect(closing.expectedCashCents).toBe(5000);
+    expect(closing.openingCashCents).toBe(2000);
+    expect(closing.countedCashCents).toBe(4500);
+    expect(closing.differenceCents).toBe(-500);
+  });
+});
+
+describe('isDayClosed', () => {
+  it('treats a missing closing as an open day', () => {
+    expect(isDayClosed(null)).toBe(false);
+  });
+
+  it('follows the closing flag, so a reopened day is open again', () => {
+    expect(isDayClosed({ isClosed: true })).toBe(true);
+    expect(isDayClosed({ isClosed: false })).toBe(false);
   });
 });
