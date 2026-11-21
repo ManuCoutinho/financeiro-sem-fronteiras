@@ -1,9 +1,11 @@
-# Install scripts pnpm should skip. Neither is needed: @firebase/util only bakes a default
-# config from FIREBASE_WEBAPP_CONFIG (the app passes its own), and protobufjs only checks
-# the versions of its CLI dependencies.
+# Install scripts pnpm should skip. None is needed: @firebase/util only bakes a default
+# config from FIREBASE_WEBAPP_CONFIG (the app passes its own), protobufjs only checks the
+# versions of its CLI dependencies, and re2 is an optional native regex engine for
+# firebase-tools' hosting server, which falls back to RegExp without it.
 allowBuilds:
   '@firebase/util': false
   protobufjs: false
+  re2: false
 
 # Security overrides for transitive dependencies of firebase, firebase-tools, shadcn and
 # workbox-build (pnpm audit clean). @grpc/grpc-js is pinned to ~1.9 by @firebase/firestore,
