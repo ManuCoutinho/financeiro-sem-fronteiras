@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, Share } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { describeTransaction } from '@/components/cashRegister/TransactionList';
 import { LoadState } from '@/components/LoadState';
@@ -14,7 +14,7 @@ import { summarizeMonth } from '@/domain/monthlySummary';
 import { useProducts } from '@/hooks/useCatalog';
 import { useToday } from '@/hooks/useToday';
 import { useMonthlyTransactions } from '@/hooks/useTransactions';
-import { downloadTextFile } from '@/lib/download';
+import { canShareFiles, shareOrDownloadTextFile } from '@/lib/download';
 import { formatBusinessDay, formatDecimal } from '@/ui/format';
 import { CSV_HEADER, MONTH_MESSAGES, PAGE_TITLES, PAYMENT_METHOD_LABELS, TRANSACTION_TYPE_LABELS } from '@/ui/messages';
 
@@ -26,6 +26,7 @@ export function MonthlySummaryPage() {
   const [month, setMonth] = useState(currentMonth);
   const transactions = useMonthlyTransactions(month);
   const products = useProducts();
+  const [isSharing] = useState(canShareFiles);
 
   const summary = useMemo(
     () =>
@@ -50,7 +51,7 @@ export function MonthlySummaryPage() {
       typeLabels: TRANSACTION_TYPE_LABELS,
       paymentMethodLabels: PAYMENT_METHOD_LABELS,
     });
-    downloadTextFile(MONTH_MESSAGES.fileName(month), csv, CSV_MIME_TYPE);
+    void shareOrDownloadTextFile(MONTH_MESSAGES.fileName(month), csv, CSV_MIME_TYPE);
   };
 
   const isLoading = transactions.isLoading || products.isLoading;
@@ -99,9 +100,12 @@ export function MonthlySummaryPage() {
           <MonthDetailsCard summary={summary} />
           <div className="flex flex-col gap-2">
             <Button size="lg" variant="outline" onClick={exportCsv}>
-              <Download aria-hidden="true" /> {MONTH_MESSAGES.export}
+              {isSharing ? <Share aria-hidden="true" /> : <Download aria-hidden="true" />}{' '}
+              {isSharing ? MONTH_MESSAGES.share : MONTH_MESSAGES.export}
             </Button>
-            <p className="text-sm text-muted-foreground">{MONTH_MESSAGES.exportHint}</p>
+            <p className="text-sm text-muted-foreground">
+              {isSharing ? MONTH_MESSAGES.shareHint : MONTH_MESSAGES.exportHint}
+            </p>
           </div>
         </>
       )}

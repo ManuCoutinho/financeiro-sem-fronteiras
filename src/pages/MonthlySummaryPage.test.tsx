@@ -8,7 +8,7 @@ import { MonthlySummaryPage } from './MonthlySummaryPage';
 const TODAY = '2026-11-18';
 
 const state = vi.hoisted(() => ({ transactions: [] as Transaction[], requestedMonths: [] as string[] }));
-const download = vi.hoisted(() => ({ downloadTextFile: vi.fn() }));
+const download = vi.hoisted(() => ({ canShareFiles: vi.fn(() => false), shareOrDownloadTextFile: vi.fn() }));
 
 vi.mock('@/lib/download', () => download);
 vi.mock('@/hooks/useToday', () => ({ useToday: () => TODAY }));
@@ -54,6 +54,7 @@ function renderPage() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  download.canShareFiles.mockReturnValue(false);
   state.requestedMonths = [];
   state.transactions = [
     buildTransaction({ id: 'design' }),
@@ -96,11 +97,19 @@ describe('MonthlySummaryPage', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: MONTH_MESSAGES.export }));
 
-    const [fileName, csv] = download.downloadTextFile.mock.calls[0] as [string, string];
+    const [fileName, csv] = download.shareOrDownloadTextFile.mock.calls[0] as [string, string];
     expect(fileName).toBe('financeiro-2026-11.csv');
     const lines = csv.split('\n');
     expect(lines).toHaveLength(4);
     expect(lines).toContain('2026-11-10;Despesa;"Material";1;Dinheiro;15,00;0,00;0,00;15,00');
+  });
+
+  it('offers to send the spreadsheet where the share sheet is available', () => {
+    download.canShareFiles.mockReturnValue(true);
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: MONTH_MESSAGES.share }));
+    expect(download.shareOrDownloadTextFile).toHaveBeenCalledOnce();
+    expect(screen.getByText(MONTH_MESSAGES.shareHint)).toBeTruthy();
   });
 
   it('browses previous months but not future ones', () => {

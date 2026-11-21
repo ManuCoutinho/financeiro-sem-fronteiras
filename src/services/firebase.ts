@@ -1,10 +1,20 @@
 import { initializeApp } from 'firebase/app';
-import { connectAuthEmulator, getAuth, GoogleAuthProvider } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  connectAuthEmulator,
+  GoogleAuthProvider,
+  indexedDBLocalPersistence,
+  initializeAuth,
+} from 'firebase/auth';
 import { env } from '../config/env';
 
 export const app = initializeApp(env.firebase);
 
-export const auth = getAuth(app);
+// getAuth() would also register the popup/redirect resolver, which loads Google's auth iframe
+// (~130 KB) on every launch. useAuth passes the resolver only when a redirect is in flight.
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+});
 export const googleProvider = new GoogleAuthProvider();
 
 if (env.emulators.isEnabled) {

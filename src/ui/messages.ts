@@ -264,7 +264,7 @@ export const MONTH_MESSAGES = {
   expensesHint: 'Tudo o que saiu no mês',
   mixTitle: 'Serviços x produtos',
   dailyTitle: 'Vendas por dia',
-  dailyHint: 'Toque numa barra para ver o valor do dia.',
+  dailyHint: 'Toque no gráfico ou deslize o dedo sobre ele para ver o valor de cada dia.',
   bestDay: (day: string, amount: string) => `Melhor dia: ${day}, ${amount}`,
   selectedDay: (day: string, amount: string) => `${day}: ${amount}`,
   dayColumn: 'Dia',
@@ -279,6 +279,9 @@ export const MONTH_MESSAGES = {
   stockValueHint: 'Quantidade de cada produto vezes o custo dele.',
   export: 'Baixar planilha (CSV)',
   exportHint: 'Abre no Google Planilhas ou no Excel. Lançamentos desfeitos ficam de fora.',
+  share: 'Enviar planilha (CSV)',
+  shareHint:
+    'Escolha “Salvar em Arquivos”, WhatsApp ou e-mail. Abre no Google Planilhas ou no Excel. Lançamentos desfeitos ficam de fora.',
   fileName: (month: string) => `financeiro-${month}.csv`,
 } as const;
 
