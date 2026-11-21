@@ -264,7 +264,7 @@ export const MONTH_MESSAGES = {
   expensesHint: 'Tudo o que saiu no mês',
   mixTitle: 'Serviços x produtos',
   dailyTitle: 'Vendas por dia',
-  dailyHint: 'Toque numa barra para ver o valor do dia.',
+  dailyHint: 'Toque no gráfico ou deslize o dedo sobre ele para ver o valor de cada dia.',
   bestDay: (day: string, amount: string) => `Melhor dia: ${day}, ${amount}`,
   selectedDay: (day: string, amount: string) => `${day}: ${amount}`,
   dayColumn: 'Dia',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState, type PointerEvent } from 'react';
 import type { DailyTotal } from '@/domain/monthlySummary';
 import { cn } from '@/lib/utils';
 import { formatBusinessDay, formatCurrency } from '@/ui/format';
@@ -9,8 +9,44 @@ const AXIS_DAY_PATTERN = 'd';
 
 const formatDay = (day: string) => formatBusinessDay(day, DAY_PATTERN);
 
+type Gesture = { startDay: string; wasSelected: boolean; hasMoved: boolean };
+
 export function DailySalesChart({ dailyTotals }: { dailyTotals: DailyTotal[] }) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const plotRef = useRef<HTMLDivElement>(null);
+  const gesture = useRef<Gesture | null>(null);
+
+  const dayAt = (clientX: number): string | undefined => {
+    const plot = plotRef.current;
+    if (!plot || dailyTotals.length === 0) return undefined;
+    const { left, width } = plot.getBoundingClientRect();
+    if (width <= 0) return undefined;
+    const index = Math.floor(((clientX - left) / width) * dailyTotals.length);
+    return dailyTotals[Math.min(Math.max(index, 0), dailyTotals.length - 1)]?.day;
+  };
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    const day = dayAt(event.clientX);
+    if (!day) return;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    gesture.current = { startDay: day, wasSelected: day === selectedDay, hasMoved: false };
+    setSelectedDay(day);
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!gesture.current) return;
+    const day = dayAt(event.clientX);
+    if (!day || day === selectedDay) return;
+    gesture.current.hasMoved = true;
+    setSelectedDay(day);
+  };
+
+  const handlePointerUp = () => {
+    // Tapping the day that is already shown goes back to the best day of the month.
+    if (gesture.current?.wasSelected && !gesture.current.hasMoved) setSelectedDay(null);
+    gesture.current = null;
+  };
+
   const bestDay = dailyTotals.reduce<DailyTotal | null>(
     (best, total) => (total.salesCents > (best?.salesCents ?? 0) ? total : best),
     null,
@@ -30,14 +66,25 @@ export function DailySalesChart({ dailyTotals }: { dailyTotals: DailyTotal[] }) 
           : MONTH_MESSAGES.bestDay(formatDay(bestDay.day), formatCurrency(bestDay.salesCents))}
       </p>
 
-      <div aria-hidden="true" className="flex h-36 items-end gap-0.5 border-b border-border/40">
+      {/* The whole plot is the touch target: a tap anywhere picks the nearest day and sliding a
+          finger sweeps across days, since each bar is only ~10 px wide on a phone. */}
+      <div
+        ref={plotRef}
+        aria-hidden="true"
+        data-testid="daily-sales-plot"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={() => (gesture.current = null)}
+        className="flex h-36 cursor-pointer touch-pan-y items-end border-b border-border/40 select-none"
+      >
         {dailyTotals.map((total) => (
-          <button
+          <div
             key={total.day}
-            type="button"
-            tabIndex={-1}
-            onClick={() => setSelectedDay(total.day === selectedDay ? null : total.day)}
-            className="flex h-full flex-1 items-end"
+            className={cn(
+              'flex h-full flex-1 items-end rounded-t-md px-px',
+              total.day === selectedDay && 'bg-foreground/10',
+            )}
           >
             <span
               className={cn(
@@ -46,7 +93,7 @@ export function DailySalesChart({ dailyTotals }: { dailyTotals: DailyTotal[] }) 
               )}
               style={{ height: `${(total.salesCents / maxCents) * 100}%` }}
             />
-          </button>
+          </div>
         ))}
       </div>
       {firstDay && lastDay && (
