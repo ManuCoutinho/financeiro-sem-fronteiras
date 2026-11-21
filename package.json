@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "packageManager": "pnpm@12.16.1",
   "engines": {
     "node": ">=22"
   },
@@ -18,8 +19,8 @@
     "test:watch": "vitest --project unit",
     "rules:render": "node scripts/renderRules.mjs",
     "test:rules": "firebase emulators:exec --only firestore \"vitest run --project rules\"",
-    "deploy:rules": "npm run rules:render && firebase deploy --only firestore",
-    "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "deploy:rules": "pnpm rules:render && firebase deploy --only firestore",
+    "deploy:hosting": "pnpm build && firebase deploy --only hosting",
     "icons": "node scripts/generateIcons.mjs"
   },
   "dependencies": {
@@ -64,16 +65,5 @@
     "vite": "^8.3.8",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.1.0"
-  },
-  "overrides": {
-    "@grpc/grpc-js": "^1.14.7",
-    "@opentelemetry/core": "^2.8.0",
-    "glob@>=9.0.0 <14.0.2": "^14.0.6",
-    "minimatch@>=7.0.0 <11.0.1": "^11.0.9",
-    "rimraf@>=4.2.0 <6.1.4": "^6.1.4",
-    "uuid@<11.1.1": "^11.1.1",
-    "workbox-build": {
-      "glob": "^14.0.6"
-    }
   }
 }

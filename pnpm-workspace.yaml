@@ -1,0 +1,20 @@
+# Install scripts pnpm should skip. None is needed: @firebase/util only bakes a default
+# config from FIREBASE_WEBAPP_CONFIG (the app passes its own), protobufjs only checks the
+# versions of its CLI dependencies, and re2 is an optional native regex engine for
+# firebase-tools' hosting server, which falls back to RegExp without it.
+allowBuilds:
+  '@firebase/util': false
+  protobufjs: false
+  re2: false
+
+# Security overrides for transitive dependencies of firebase, firebase-tools, shadcn and
+# workbox-build (pnpm audit clean). @grpc/grpc-js is pinned to ~1.9 by @firebase/firestore,
+# even in firebase 13.
+overrides:
+  '@grpc/grpc-js': ^1.14.7
+  '@opentelemetry/core': ^2.8.0
+  'glob@>=9.0.0 <14.0.2': ^14.0.6
+  'minimatch@>=7.0.0 <11.0.1': ^11.0.9
+  'rimraf@>=4.2.0 <6.1.4': ^6.1.4
+  'uuid@<11.1.1': ^11.1.1
+  'workbox-build>glob': ^14.0.6

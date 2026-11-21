@@ -5,6 +5,7 @@ PWA de controle de caixa e estoque para uma designer de sobrancelhas. React + Ty
 ## Pré-requisitos
 
 - Node.js na versão de `.nvmrc` (`nvm use`)
+- pnpm na versão de `packageManager` no `package.json` (`corepack enable` instala a certa)
 - Java 21+ (emulador do Firestore)
 - Acesso ao GitHub por SSH
 
@@ -13,9 +14,9 @@ PWA de controle de caixa e estoque para uma designer de sobrancelhas. React + Ty
 ```bash
 git clone git@github.com:ManuCoutinho/financeiro-sem-fronteiras.git
 cd financeiro-sem-fronteiras
-npm ci
+pnpm install --frozen-lockfile
 cp .env.local.example .env.local
-npm run dev
+pnpm dev
 ```
 
 ## Configuração
@@ -26,17 +27,19 @@ npm run dev
 
 ## Scripts
 
-| Script                               | O que faz                                                   |
-| ------------------------------------ | ----------------------------------------------------------- |
-| `npm run dev`                        | Servidor de desenvolvimento                                 |
-| `npm run build`                      | Typecheck e build de produção com PWA                       |
-| `npm run lint` / `npm run typecheck` | ESLint e TypeScript                                         |
-| `npm run format`                     | Prettier                                                    |
-| `npm test`                           | Testes unitários (Vitest)                                   |
-| `npm run test:rules`                 | Testes das regras do Firestore no emulador                  |
-| `npm run rules:render`               | Gera `firestore.rules` a partir do template com `OWNER_UID` |
-| `npm run deploy:rules`               | Gera e publica as regras do Firestore                       |
-| `npm run deploy:hosting`             | Build e publicação do Hosting                               |
+| Script                         | O que faz                                                   |
+| ------------------------------ | ----------------------------------------------------------- |
+| `pnpm dev`                     | Servidor de desenvolvimento                                 |
+| `pnpm build`                   | Typecheck e build de produção com PWA                       |
+| `pnpm lint` / `pnpm typecheck` | ESLint e TypeScript                                         |
+| `pnpm format`                  | Prettier                                                    |
+| `pnpm test`                    | Testes unitários (Vitest)                                   |
+| `pnpm test:rules`              | Testes das regras do Firestore no emulador                  |
+| `pnpm rules:render`            | Gera `firestore.rules` a partir do template com `OWNER_UID` |
+| `pnpm deploy:rules`            | Gera e publica as regras do Firestore                       |
+| `pnpm deploy:hosting`          | Build e publicação do Hosting                               |
+
+Dependências: `pnpm add <pacote>` (ou `-D` para desenvolvimento). Overrides de segurança e scripts de instalação permitidos ficam no `pnpm-workspace.yaml`.
 
 ## Padrões
 
