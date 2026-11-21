@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 import { BottomNav } from './BottomNav';
 
-/** Telas das abas: conteúdo com espaço para a barra inferior. */
+/** Tab screens: content leaves room for the bottom navigation bar. */
 export function TabLayout() {
   return (
     <>
@@ -13,7 +13,7 @@ export function TabLayout() {
   );
 }
 
-/** Telas de fluxo (venda, despesa, fechamento): sem barra, com botão Voltar. */
+/** Flow screens (sale, expense, closing): no bottom bar, with a Back button. */
 export function FlowLayout() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-6 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">

@@ -3,10 +3,10 @@
 @import 'shadcn/tailwind.css';
 
 /*
- * Paleta da marca. Rosa (--primary) e azul-claro (--secondary) não passam
- * 4,5:1 sobre o creme: só servem de preenchimento, com texto azul-marinho.
- * As cores de estado foram escolhidas para passar 4,5:1 sobre o creme, o
- * branco e os fundos suaves de selo.
+ * Brand palette. Pink (--primary) and light blue (--secondary) do not reach
+ * 4.5:1 on cream: use them only as fills, with navy text on top.
+ * Status colors were picked to reach 4.5:1 on cream, white and the soft
+ * badge backgrounds.
  */
 :root {
   --radius: 1rem;
