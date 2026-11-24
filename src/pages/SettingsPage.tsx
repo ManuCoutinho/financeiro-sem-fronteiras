@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { AccountCard } from '@/components/settings/AccountCard';
 import { BusinessSettingsCard } from '@/components/settings/BusinessSettingsCard';
 import { CatalogSection } from '@/components/settings/CatalogSection';
+import { InstallAppButton } from '@/components/settings/InstallAppButton';
 import { ProductSheet } from '@/components/settings/ProductSheet';
 import { ServiceSheet } from '@/components/settings/ServiceSheet';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,7 @@ export function SettingsPage() {
             <Calculator aria-hidden="true" /> {PAGE_TITLES.importPricing}
           </Link>
         </Button>
+        <InstallAppButton />
       </section>
 
       <AccountCard />
