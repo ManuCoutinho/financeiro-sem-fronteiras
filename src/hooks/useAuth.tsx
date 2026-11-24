@@ -9,7 +9,7 @@ import {
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { forgetVerifiedOwner } from '@/lib/verifiedOwner';
 import { auth, googleProvider } from '@/services/firebase';
-import { toUserMessage } from '@/ui/messages';
+import { AUTH_MESSAGES, toUserMessage } from '@/ui/messages';
 
 export type AuthState = {
   user: User | null;
@@ -108,6 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       errorMessage,
       signIn: async () => {
         setErrorMessage(null);
+        // Offline, the redirect would land on the browser's error page, which an installed app
+        // shows full screen with no way back.
+        if (!navigator.onLine) {
+          setErrorMessage(AUTH_MESSAGES.networkError);
+          return;
+        }
         markPendingRedirect();
         try {
           await signInWithRedirect(auth, googleProvider, browserPopupRedirectResolver);

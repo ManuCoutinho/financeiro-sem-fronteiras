@@ -3,12 +3,14 @@ import { createRoot } from 'react-dom/client';
 import '@fontsource-variable/urbanist';
 import { App } from './App';
 import { env } from './config/env';
+import { listenForInstallPrompt } from './lib/installApp';
 import './index.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Root element #root not found');
 
 document.documentElement.style.setProperty('--app-theme-color', env.themeColor);
+listenForInstallPrompt();
 
 createRoot(rootElement).render(
   <StrictMode>

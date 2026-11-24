@@ -141,6 +141,27 @@ export const SETTINGS_MESSAGES = {
   settingsSaved: 'Configurações salvas',
 } as const;
 
+export const INSTALL_MESSAGES = {
+  install: 'Instalar app',
+  installHint: 'Coloca o ícone na tela de início do celular, para abrir o app em tela cheia, como os outros apps.',
+  installed: 'O app já está instalado neste aparelho.',
+  accepted: 'App instalado. Abra pelo ícone na tela de início.',
+  iosTitle: 'Instalar no iPhone',
+  iosSteps: [
+    'Toque em Compartilhar (o quadrado com a seta para cima), na barra do navegador.',
+    'Role a lista e toque em “Adicionar à Tela de Início”.',
+    'Toque em “Adicionar”. O ícone “Caixa” aparece na tela de início.',
+  ],
+  manualTitle: 'Instalar o app',
+  manualSteps: [
+    'Abra o menu do navegador (⋮ ou ⋯).',
+    'Toque em “Instalar app” ou “Adicionar à tela inicial”.',
+    'Confirme. O ícone “Caixa” aparece na tela de início.',
+  ],
+  manualNote: 'Se a opção não aparecer, abra o app no Safari (iPhone) ou no Chrome (Android).',
+  close: 'Entendi',
+} as const;
+
 export const CASH_REGISTER_MESSAGES = {
   dayLabelPattern: "EEEE, d 'de' MMMM",
   soldToday: 'Vendido hoje',

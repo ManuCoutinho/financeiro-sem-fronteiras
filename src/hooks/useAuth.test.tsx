@@ -24,7 +24,12 @@ async function renderProvider() {
   function Probe() {
     const state = useAuth();
     signIn = state.signIn;
-    return <p>{state.isLoading ? 'loading' : (state.user?.uid ?? 'signed out')}</p>;
+    return (
+      <>
+        <p>{state.isLoading ? 'loading' : (state.user?.uid ?? 'signed out')}</p>
+        {state.errorMessage && <p role="alert">{state.errorMessage}</p>}
+      </>
+    );
   }
   render(
     <AuthProvider>
@@ -96,6 +101,21 @@ describe('AuthProvider', () => {
       expect.anything(),
       firebaseAuth.browserPopupRedirectResolver,
     );
+  });
+
+  it('stays on the login screen with a message when there is no connection', async () => {
+    const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      const { signIn } = await renderProvider();
+      await act(async () => emitAuthState(null));
+      await act(() => signIn());
+
+      expect(firebaseAuth.signInWithRedirect).not.toHaveBeenCalled();
+      expect(localStorage.getItem(PENDING_REDIRECT_KEY)).toBeNull();
+      expect(screen.getByRole('alert').textContent).toBe('Sem internet. Conecte-se para entrar pela primeira vez.');
+    } finally {
+      onLine.mockRestore();
+    }
   });
 
   it('clears the flag when the redirect cannot start', async () => {
