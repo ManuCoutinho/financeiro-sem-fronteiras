@@ -7,6 +7,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { forgetVerifiedOwner } from '@/lib/verifiedOwner';
 import { auth, googleProvider } from '@/services/firebase';
 import { toUserMessage } from '@/ui/messages';
 
@@ -115,7 +116,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setErrorMessage(toUserMessage(error));
         }
       },
-      signOut: () => signOut(auth),
+      signOut: () => {
+        forgetVerifiedOwner();
+        return signOut(auth);
+      },
     }),
     [user, isLoading, errorMessage],
   );

@@ -78,6 +78,16 @@ export const AUTH_MESSAGES = {
   signInCancelled: 'O login foi cancelado. Toque em “Entrar com Google” para tentar de novo.',
 } as const;
 
+export const ACCESS_MESSAGES = {
+  deniedTitle: 'Esta conta não tem acesso',
+  deniedDescription: 'O app só abre com a conta do negócio. Saia e entre com ela.',
+  signedInAs: 'Você entrou como',
+  switchAccount: 'Sair e entrar com outra conta',
+  failedTitle: 'Não deu para confirmar o acesso',
+  failedDescription: 'Confira a internet e tente de novo. Se continuar, saia e entre de novo.',
+  retry: 'Tentar de novo',
+} as const;
+
 export const PAGE_TITLES = {
   cashRegister: 'Caixa',
   confirmSale: 'Confirmar venda',
