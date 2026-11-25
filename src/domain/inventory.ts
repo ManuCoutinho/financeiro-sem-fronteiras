@@ -8,6 +8,9 @@ export const MANUAL_STOCK_MOVEMENT_TYPES = [
 ] as const satisfies readonly StockMovementType[];
 export type ManualStockMovementType = (typeof MANUAL_STOCK_MOVEMENT_TYPES)[number];
 
+export const ADJUSTMENT_REASONS = ['count', 'loss', 'damage', 'expired', 'other'] as const;
+export type AdjustmentReason = (typeof ADJUSTMENT_REASONS)[number];
+
 export const STOCK_ALERT_TYPES = ['negative', 'low', 'expired', 'expiringSoon'] as const;
 export type StockAlertType = (typeof STOCK_ALERT_TYPES)[number];
 

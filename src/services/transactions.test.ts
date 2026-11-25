@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NewExpense, NewSale } from '@/domain/schemas';
 import { COLLECTIONS } from './collections';
-import { registerExpense, registerSale, voidTransaction } from './transactions';
+import { registerExpense, registerSale, voidTransaction, whenSavedOnDevice } from './transactions';
 
 const batch = vi.hoisted(() => ({
   set: vi.fn(),
   update: vi.fn(),
   commit: vi.fn(() => Promise.resolve()),
 }));
+
+const cache = vi.hoisted(() => ({ getDocFromCache: vi.fn() }));
 
 vi.mock('./firestore', () => ({ db: {} }));
 
@@ -18,6 +20,7 @@ vi.mock('firebase/firestore', () => ({
   increment: (value: number) => ({ increment: value }),
   serverTimestamp: () => 'server-timestamp',
   writeBatch: () => batch,
+  getDocFromCache: cache.getDocFromCache,
 }));
 
 const onError = vi.fn();
@@ -133,5 +136,31 @@ describe('voidTransaction', () => {
 
   it('voids again once the day is reopened', () => {
     expect(voidTransaction(transaction, { isClosed: false }, onError)).toBe('voided');
+  });
+});
+
+describe('whenSavedOnDevice', () => {
+  it('waits until the new transaction is in the local cache', async () => {
+    cache.getDocFromCache
+      .mockRejectedValueOnce(new Error('not cached yet'))
+      .mockResolvedValueOnce({ exists: () => false })
+      .mockResolvedValueOnce({ exists: () => true });
+
+    await expect(whenSavedOnDevice('new-id')).resolves.toBeUndefined();
+    expect(cache.getDocFromCache).toHaveBeenCalledTimes(3);
+    expect(cache.getDocFromCache).toHaveBeenCalledWith({ path: `${COLLECTIONS.transactions}/new-id`, id: 'new-id' });
+  });
+
+  it('gives up when the write never reaches the cache', async () => {
+    vi.useFakeTimers();
+    try {
+      cache.getDocFromCache.mockRejectedValue(new Error('not cached'));
+      const result = whenSavedOnDevice('lost');
+      const assertion = expect(result).rejects.toThrow();
+      await vi.advanceTimersByTimeAsync(5000);
+      await assertion;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

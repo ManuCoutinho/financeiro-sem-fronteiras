@@ -6,6 +6,7 @@ import {
   evaluateImportPricing,
   type ImportPricingField,
 } from '@/components/importPricing/importPricingInput';
+import { MoneyField } from '@/components/MoneyField';
 import { PageHeader } from '@/components/PageHeader';
 import { TextField } from '@/components/TextField';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import { useProducts } from '@/hooks/useCatalog';
 import { notifyError } from '@/lib/notify';
 import { cn } from '@/lib/utils';
 import { updateProductDetails } from '@/services/catalog';
-import { formatCurrency, formatDecimal, formatNumber } from '@/ui/format';
+import { formatCurrency, formatMoneyInput, formatNumber } from '@/ui/format';
 import { IMPORT_PRICING_MESSAGES, PAGE_TITLES } from '@/ui/messages';
 
 const MARGIN_DECIMALS = 10;
@@ -47,7 +48,7 @@ export function ImportPricingPage() {
   const selectProduct = (id: string) => {
     setProductId(id);
     const selected = products.data.find((candidate) => candidate.id === id);
-    if (selected) setValues({ ...values, salePrice: formatDecimal(selected.salePriceCents) });
+    if (selected) setValues({ ...values, salePrice: formatMoneyInput(selected.salePriceCents) });
   };
 
   const saveCost = () => {
@@ -86,15 +87,13 @@ export function ImportPricingPage() {
             {...field('exchangeRate')}
           />
           <div className="grid grid-cols-2 gap-3">
-            <TextField
+            <MoneyField
               label={IMPORT_PRICING_MESSAGES.shippingLabel}
-              inputMode="decimal"
               className="flex flex-col justify-end gap-2"
               {...field('shipping')}
             />
-            <TextField
+            <MoneyField
               label={IMPORT_PRICING_MESSAGES.taxesLabel}
-              inputMode="decimal"
               className="flex flex-col justify-end gap-2"
               {...field('taxes')}
             />
@@ -148,7 +147,7 @@ export function ImportPricingPage() {
               </p>
             </div>
           )}
-          <TextField label={IMPORT_PRICING_MESSAGES.salePriceLabel} inputMode="decimal" {...field('salePrice')} />
+          <MoneyField label={IMPORT_PRICING_MESSAGES.salePriceLabel} {...field('salePrice')} />
 
           <div aria-live="polite">
             {marginPercent === null || result.profitCents === null ? (

@@ -55,6 +55,7 @@ export function MonthlySummaryPage() {
   };
 
   const isLoading = transactions.isLoading || products.isLoading;
+  const error = transactions.error ?? products.error;
 
   return (
     <>
@@ -82,9 +83,9 @@ export function MonthlySummaryPage() {
         </Button>
       </nav>
 
-      <LoadState isLoading={isLoading} error={transactions.error ?? products.error} />
+      <LoadState isLoading={isLoading} error={error} />
 
-      {!isLoading && (
+      {!isLoading && !error && (
         <>
           <KpiGrid summary={summary} />
           <Card>

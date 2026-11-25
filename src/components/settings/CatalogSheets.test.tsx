@@ -71,8 +71,8 @@ describe('ProductSheet', () => {
     render(<ProductSheet product={null} nextSortOrder={0} onClose={onClose} />);
 
     type(SETTINGS_MESSAGES.nameLabel, 'Sérum');
-    type(SETTINGS_MESSAGES.salePriceLabel, '40');
-    type(SETTINGS_MESSAGES.costLabel, '15');
+    type(SETTINGS_MESSAGES.salePriceLabel, '4000');
+    type(SETTINGS_MESSAGES.costLabel, '1500');
     type(SETTINGS_MESSAGES.quantityLabel, '5');
     save();
 
@@ -99,7 +99,7 @@ describe('ProductSheet', () => {
     expect(screen.queryByLabelText(SETTINGS_MESSAGES.quantityLabel)).toBeNull();
     expect(screen.getByText(SETTINGS_MESSAGES.currentStock(7))).toBeTruthy();
 
-    type(SETTINGS_MESSAGES.salePriceLabel, '45,00');
+    type(SETTINGS_MESSAGES.salePriceLabel, '4500');
     fireEvent.click(screen.getByLabelText(SETTINGS_MESSAGES.isActiveLabel));
     save();
 

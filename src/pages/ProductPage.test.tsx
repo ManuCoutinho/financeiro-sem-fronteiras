@@ -98,7 +98,9 @@ describe('ProductPage', () => {
     save();
     expect(await screen.findByText(PRODUCT_MESSAGES.reasonRequired)).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText(PRODUCT_MESSAGES.reasonLabel), { target: { value: 'Avaria' } });
+    // The reason is picked from a list; only "Outro" asks for text.
+    expect(screen.queryByLabelText(PRODUCT_MESSAGES.otherReasonLabel)).toBeNull();
+    fireEvent.click(screen.getByLabelText('Avaria'));
     save();
     await waitFor(() =>
       expect(stock.registerStockMovement).toHaveBeenCalledWith(

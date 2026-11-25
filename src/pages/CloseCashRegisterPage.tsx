@@ -1,9 +1,12 @@
-import { LockOpen } from 'lucide-react';
+import { LockOpen, Plus } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { toast } from 'sonner';
+import { PATHS } from '@/app/paths';
+import { TransactionList } from '@/components/cashRegister/TransactionList';
 import { CashDifference, ClosingSummary } from '@/components/closing/ClosingSummary';
+import { MoneyField } from '@/components/MoneyField';
 import { PageHeader } from '@/components/PageHeader';
-import { TextField } from '@/components/TextField';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +17,7 @@ import { useDailyTransactions } from '@/hooks/useTransactions';
 import { notifyError } from '@/lib/notify';
 import { closeCashRegister, reopenCashRegister, type CashClosing } from '@/services/cashClosings';
 import type { Transaction } from '@/services/transactions';
-import { formatCurrency, formatDecimal, formatTime, parseAmountToCents } from '@/ui/format';
+import { formatCurrency, formatMoneyInput, formatTime, parseAmountToCents } from '@/ui/format';
 import { CLOSING_MESSAGES, FORM_MESSAGES, LOADING_LABEL, PAGE_TITLES } from '@/ui/messages';
 
 const parseOptionalAmount = (text: string) => (text.trim() === '' ? 0 : parseAmountToCents(text));
@@ -23,7 +26,7 @@ type OpenDayProps = { day: string; transactions: Transaction[]; previousClosing:
 
 function OpenDay({ day, transactions, previousClosing }: OpenDayProps) {
   const [openingText, setOpeningText] = useState(() =>
-    previousClosing ? formatDecimal(previousClosing.openingCashCents) : '',
+    previousClosing ? formatMoneyInput(previousClosing.openingCashCents) : '',
   );
   const [countedText, setCountedText] = useState('');
 
@@ -41,20 +44,37 @@ function OpenDay({ day, transactions, previousClosing }: OpenDayProps) {
     toast.success(CLOSING_MESSAGES.closed);
   };
 
+  const expenses = transactions.filter((transaction) => transaction.type === 'expense');
+
   return (
     <>
       <ClosingSummary totals={closing} />
       <Card>
         <CardHeader>
+          <CardTitle className="text-xl">{CLOSING_MESSAGES.expensesTitle}</CardTitle>
+          <p className="text-sm text-muted-foreground">{CLOSING_MESSAGES.expensesHint}</p>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {expenses.length === 0 ? (
+            <p className="text-muted-foreground">{CLOSING_MESSAGES.noExpenses}</p>
+          ) : (
+            <TransactionList transactions={expenses} />
+          )}
+          <Button asChild variant="outline" size="lg">
+            <Link to={PATHS.newExpense}>
+              <Plus aria-hidden="true" /> {CLOSING_MESSAGES.addExpense}
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
           <CardTitle className="text-xl">{CLOSING_MESSAGES.drawerTitle}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-5">
-          <TextField
+          <MoneyField
             label={CLOSING_MESSAGES.openingCashLabel}
             hint={CLOSING_MESSAGES.openingCashHint}
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0"
             value={openingText}
             onChange={(event) => setOpeningText(event.target.value)}
             error={openingCashCents === null ? FORM_MESSAGES.invalidAmount : undefined}
@@ -66,11 +86,9 @@ function OpenDay({ day, transactions, previousClosing }: OpenDayProps) {
             </div>
             <p className="text-sm text-muted-foreground">{CLOSING_MESSAGES.expectedCashHint}</p>
           </div>
-          <TextField
+          <MoneyField
             label={CLOSING_MESSAGES.countedCashLabel}
             hint={CLOSING_MESSAGES.countedCashHint}
-            inputMode="decimal"
-            autoComplete="off"
             value={countedText}
             onChange={(event) => setCountedText(event.target.value)}
             error={countedText.trim() !== '' && countedCashCents === null ? FORM_MESSAGES.invalidAmount : undefined}

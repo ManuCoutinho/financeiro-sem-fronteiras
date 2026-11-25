@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { ChoiceGroup } from '@/components/ChoiceGroup';
+import { PercentField } from '@/components/MoneyField';
 import { TextField } from '@/components/TextField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,7 +12,17 @@ import { useBusinessSettings } from '@/hooks/useCatalog';
 import { notifyError } from '@/lib/notify';
 import { saveBusinessSettings } from '@/services/catalog';
 import { PAYMENT_METHOD_LABELS, SETTINGS_MESSAGES } from '@/ui/messages';
-import { businessFormSchema, toBusinessFormValues, type BusinessFormValues } from './settingsForms';
+import {
+  businessFormSchema,
+  EXPIRATION_ALERT_DAY_OPTIONS,
+  toBusinessFormValues,
+  type BusinessFormValues,
+} from './settingsForms';
+
+const EXPIRATION_ALERT_OPTIONS = EXPIRATION_ALERT_DAY_OPTIONS.map((days) => ({
+  value: String(days),
+  label: SETTINGS_MESSAGES.expirationAlertDaysOption(days),
+}));
 
 export function BusinessSettingsCard() {
   const settings = useBusinessSettings();
@@ -43,7 +55,7 @@ export function BusinessSettingsCard() {
           )}
           <TextField
             label={SETTINGS_MESSAGES.businessNameLabel}
-            autoComplete="organization"
+            autoComplete="off"
             error={errors.name?.message}
             {...register('name')}
           />
@@ -52,23 +64,20 @@ export function BusinessSettingsCard() {
             <p className="text-sm text-muted-foreground">{SETTINGS_MESSAGES.feesHint}</p>
             <div className="grid grid-cols-2 gap-3">
               {PAYMENT_METHODS.map((method) => (
-                <TextField
+                <PercentField
                   key={method}
                   label={PAYMENT_METHOD_LABELS[method]}
-                  inputMode="decimal"
-                  autoComplete="off"
                   error={errors.feePercentByMethod?.[method]?.message}
                   {...register(`feePercentByMethod.${method}`)}
                 />
               ))}
             </div>
           </fieldset>
-          <TextField
-            label={SETTINGS_MESSAGES.expirationAlertDaysLabel}
-            inputMode="numeric"
-            autoComplete="off"
+          <ChoiceGroup
+            legend={SETTINGS_MESSAGES.expirationAlertDaysLabel}
+            options={EXPIRATION_ALERT_OPTIONS}
             error={errors.expirationAlertDays?.message}
-            {...register('expirationAlertDays')}
+            inputProps={register('expirationAlertDays')}
           />
           <Button type="submit" size="lg" disabled={settings.isLoading}>
             {SETTINGS_MESSAGES.save}

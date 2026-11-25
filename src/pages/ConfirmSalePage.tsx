@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { PATHS } from '@/app/paths';
 import { QuantityStepper } from '@/components/cashRegister/QuantityStepper';
 import { PageHeader } from '@/components/PageHeader';
-import { TextField } from '@/components/TextField';
+import { MoneyField } from '@/components/MoneyField';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { SaleType } from '@/domain/cashRegister';
@@ -14,8 +14,8 @@ import { previewSale } from '@/domain/sale';
 import { useCashClosing } from '@/hooks/useCashClosing';
 import { useBusinessSettings, useProducts, useServices } from '@/hooks/useCatalog';
 import { useToday } from '@/hooks/useToday';
-import { notifyError } from '@/lib/notify';
-import { registerSale, voidTransaction } from '@/services/transactions';
+import { notifyError, notifyRejected } from '@/lib/notify';
+import { registerSale, voidTransaction, whenSavedOnDevice } from '@/services/transactions';
 import { formatCurrency, formatNumber, parseAmountToCents } from '@/ui/format';
 import {
   FORM_MESSAGES,
@@ -78,6 +78,7 @@ export function ConfirmSalePage() {
   const closing = useCashClosing(today);
   const [quantity, setQuantity] = useState(1);
   const [discountText, setDiscountText] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const header = <PageHeader title={PAGE_TITLES.confirmSale} hasBackButton />;
   if (isLoading || closing.isLoading) {
@@ -120,7 +121,8 @@ export function ConfirmSalePage() {
         ? undefined
         : SALE_MESSAGES.discountTooHigh;
 
-  const register = (paymentMethod: PaymentMethod) => {
+  const register = async (paymentMethod: PaymentMethod) => {
+    setIsSaving(true);
     const sale = {
       type: item.type,
       itemId: item.id,
@@ -132,7 +134,15 @@ export function ConfirmSalePage() {
       feePercent: settings.data.feePercentByMethod[paymentMethod],
       day: today,
     };
-    const transactionId = registerSale(sale, notifyError);
+    const transactionId = registerSale(sale, notifyRejected(SALE_MESSAGES.notRegistered));
+    try {
+      // Saying "registered" before the sale is stored is what let it vanish from the day list.
+      await whenSavedOnDevice(transactionId);
+    } catch {
+      setIsSaving(false);
+      toast.error(SALE_MESSAGES.notSavedOnDevice);
+      return;
+    }
     const undo = () => {
       const result = voidTransaction({ id: transactionId, ...sale }, closing.data, notifyError);
       if (result === 'dayClosed') toast.error(MESSAGES.dayClosedReopenFirst);
@@ -157,10 +167,8 @@ export function ConfirmSalePage() {
             <span className="text-base text-muted-foreground tabular-nums">{formatCurrency(item.unitPriceCents)}</span>
           </div>
           <QuantityStepper value={quantity} onChange={setQuantity} />
-          <TextField
+          <MoneyField
             label={SALE_MESSAGES.discountLabel}
-            inputMode="decimal"
-            autoComplete="off"
             value={discountText}
             onChange={(event) => setDiscountText(event.target.value)}
             error={discountError}
@@ -188,7 +196,9 @@ export function ConfirmSalePage() {
           <h2 id="payment-title" className="text-xl font-bold">
             {SALE_MESSAGES.paymentTitle}
           </h2>
-          <p className="text-sm text-muted-foreground">{SALE_MESSAGES.paymentHint}</p>
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {isSaving ? SALE_MESSAGES.saving : SALE_MESSAGES.paymentHint}
+          </p>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {PAYMENT_METHODS.map((method) => {
@@ -198,8 +208,8 @@ export function ConfirmSalePage() {
                 key={method}
                 size="lg"
                 className="h-auto min-h-16 flex-col gap-0 py-2"
-                disabled={discountError !== undefined}
-                onClick={() => register(method)}
+                disabled={discountError !== undefined || isSaving}
+                onClick={() => void register(method)}
               >
                 <span className="text-lg">{PAYMENT_METHOD_LABELS[method]}</span>
                 {feePercent > 0 && (

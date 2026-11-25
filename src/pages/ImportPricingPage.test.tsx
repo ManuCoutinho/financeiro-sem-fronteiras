@@ -46,8 +46,8 @@ describe('ImportPricingPage', () => {
 
     type(IMPORT_PRICING_MESSAGES.foreignAmountLabel, '100');
     type(IMPORT_PRICING_MESSAGES.exchangeRateLabel, '5,50');
-    type(IMPORT_PRICING_MESSAGES.shippingLabel, '80');
-    type(IMPORT_PRICING_MESSAGES.taxesLabel, '60');
+    type(IMPORT_PRICING_MESSAGES.shippingLabel, '8000');
+    type(IMPORT_PRICING_MESSAGES.taxesLabel, '6000');
     type(IMPORT_PRICING_MESSAGES.quantityLabel, '10');
     expect(screen.getByText('R$ 69,00', { normalizer: normalize })).toBeTruthy();
 
@@ -76,7 +76,7 @@ describe('ImportPricingPage', () => {
     type(IMPORT_PRICING_MESSAGES.foreignAmountLabel, '100');
     type(IMPORT_PRICING_MESSAGES.exchangeRateLabel, '5,50');
     type(IMPORT_PRICING_MESSAGES.quantityLabel, '10');
-    type(IMPORT_PRICING_MESSAGES.salePriceLabel, '50');
+    type(IMPORT_PRICING_MESSAGES.salePriceLabel, '5000');
     expect(screen.getByText('-10%').className).toContain('text-expense');
   });
 });

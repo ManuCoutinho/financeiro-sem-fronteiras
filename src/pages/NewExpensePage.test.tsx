@@ -7,7 +7,11 @@ import { NewExpensePage } from './NewExpensePage';
 
 const TODAY = '2026-11-18';
 const state = vi.hoisted(() => ({ isClosed: false }));
-const transactions = vi.hoisted(() => ({ registerExpense: vi.fn(() => 'new-id'), voidTransaction: vi.fn() }));
+const transactions = vi.hoisted(() => ({
+  registerExpense: vi.fn(() => 'new-id'),
+  voidTransaction: vi.fn(),
+  whenSavedOnDevice: vi.fn(() => Promise.resolve()),
+}));
 
 vi.mock('@/services/transactions', () => transactions);
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -21,7 +25,7 @@ function renderPage() {
     <MemoryRouter initialEntries={[PATHS.newExpense]}>
       <Routes>
         <Route path={PATHS.newExpense} element={<NewExpensePage />} />
-        <Route path={PATHS.cashRegister} element={<p>tela do caixa</p>} />
+        <Route path={PATHS.closing} element={<p>tela do fechamento</p>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -47,15 +51,15 @@ describe('NewExpensePage', () => {
     expect(transactions.registerExpense).not.toHaveBeenCalled();
   });
 
-  it('registers the expense in cents and returns to the register', async () => {
+  it('registers the expense in cents and returns to the closing', async () => {
     renderPage();
     fireEvent.click(screen.getByLabelText('Material'));
-    fireEvent.change(screen.getByLabelText(EXPENSE_MESSAGES.amountLabel), { target: { value: '15,90' } });
+    fireEvent.change(screen.getByLabelText(EXPENSE_MESSAGES.amountLabel), { target: { value: '1590' } });
     fireEvent.change(screen.getByLabelText(EXPENSE_MESSAGES.descriptionLabel), { target: { value: ' Luvas ' } });
     fireEvent.click(screen.getByLabelText('Dinheiro'));
     save();
 
-    await waitFor(() => expect(screen.getByText('tela do caixa')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('tela do fechamento')).toBeTruthy());
     expect(transactions.registerExpense).toHaveBeenCalledWith(
       { category: 'supplies', description: 'Luvas', amountCents: 1590, paymentMethod: 'cash', day: TODAY },
       expect.any(Function),

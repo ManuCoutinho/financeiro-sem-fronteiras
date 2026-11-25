@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import type { z } from 'zod';
 import { CheckboxField } from '@/components/CheckboxField';
 import { EditorSheet } from '@/components/EditorSheet';
+import { MoneyField } from '@/components/MoneyField';
 import { TextField } from '@/components/TextField';
 import { Button } from '@/components/ui/button';
 import type { Service } from '@/domain/schemas';
@@ -43,13 +44,7 @@ export function ServiceSheet({ service, nextSortOrder, onClose }: ServiceSheetPr
           error={errors.name?.message}
           {...register('name')}
         />
-        <TextField
-          label={SETTINGS_MESSAGES.priceLabel}
-          inputMode="decimal"
-          autoComplete="off"
-          error={errors.price?.message}
-          {...register('price')}
-        />
+        <MoneyField label={SETTINGS_MESSAGES.priceLabel} error={errors.price?.message} {...register('price')} />
         <CheckboxField
           label={SETTINGS_MESSAGES.isActiveLabel}
           hint={SETTINGS_MESSAGES.isActiveHint}
