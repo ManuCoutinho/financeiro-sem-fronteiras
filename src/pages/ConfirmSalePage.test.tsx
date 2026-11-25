@@ -135,9 +135,15 @@ describe('ConfirmSalePage', () => {
     await screen.findByText('tela do caixa');
   });
 
-  it('sells a service at its fixed price, with no discount field', () => {
+  it('applies a discount to a service too', () => {
     renderSale('design');
-    expect(screen.queryByLabelText(SALE_MESSAGES.discountLabel)).toBeNull();
+    fireEvent.change(screen.getByLabelText(SALE_MESSAGES.discountLabel), { target: { value: '1500' } });
+    expect(screen.getByText('R$ 45,00')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Pix' }));
+    expect(transactions.registerSale).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'service', discountCents: 1500 }),
+      expect.any(Function),
+    );
   });
 
   it('warns when a product sale leaves the stock negative, but still sells (RN04)', () => {

@@ -106,9 +106,7 @@ export function ConfirmSalePage() {
       </>
     );
 
-  // Services have a fixed price: only products take a discount.
-  const hasDiscount = item.type === 'product';
-  const parsedDiscount = hasDiscount ? parseDiscount(discountText) : 0;
+  const parsedDiscount = parseDiscount(discountText);
   const discountCents = parsedDiscount ?? 0;
   const preview = previewSale({
     unitPriceCents: item.unitPriceCents,
@@ -169,14 +167,12 @@ export function ConfirmSalePage() {
             <span className="text-base text-muted-foreground tabular-nums">{formatCurrency(item.unitPriceCents)}</span>
           </div>
           <QuantityStepper value={quantity} onChange={setQuantity} />
-          {hasDiscount && (
-            <MoneyField
-              label={SALE_MESSAGES.discountLabel}
-              value={discountText}
-              onChange={(event) => setDiscountText(event.target.value)}
-              error={discountError}
-            />
-          )}
+          <MoneyField
+            label={SALE_MESSAGES.discountLabel}
+            value={discountText}
+            onChange={(event) => setDiscountText(event.target.value)}
+            error={discountError}
+          />
           <div className="flex items-baseline justify-between border-t border-border/20 pt-4">
             <span className="text-lg font-semibold">{SALE_MESSAGES.totalLabel}</span>
             <span className="text-3xl font-bold tabular-nums" aria-live="polite">
