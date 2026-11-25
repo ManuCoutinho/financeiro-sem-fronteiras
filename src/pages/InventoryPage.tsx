@@ -55,13 +55,15 @@ export function InventoryPage() {
     [products.data, alertsByProduct],
   );
   const isLoading = products.isLoading || alerts.isLoading;
+  const error = products.error ?? alerts.error;
+  const ready = !isLoading && !error;
 
   return (
     <>
       <PageHeader title={PAGE_TITLES.inventory} />
-      <LoadState isLoading={isLoading} error={products.error ?? alerts.error} />
+      <LoadState isLoading={isLoading} error={error} />
 
-      {!isLoading && rows.length === 0 && (
+      {ready && rows.length === 0 && (
         <Card>
           <CardContent className="flex flex-col gap-3">
             <p>{INVENTORY_MESSAGES.noProducts}</p>
@@ -74,7 +76,7 @@ export function InventoryPage() {
         </Card>
       )}
 
-      {!isLoading && rows.length > 0 && (
+      {ready && rows.length > 0 && (
         <>
           {alertsByProduct.size > 0 ? (
             <p

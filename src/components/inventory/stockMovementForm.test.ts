@@ -19,15 +19,34 @@ describe('createStockMovementFormSchema', () => {
     expect(firstError(schema.safeParse({ quantity: '1,5', reason: '' }))).toBe(FORM_MESSAGES.invalidWholeNumber);
   });
 
-  it('turns the counted quantity of an adjustment into the difference', () => {
+  it('turns the counted quantity of an adjustment into the difference, with the reason from the list', () => {
     const schema = createStockMovementFormSchema('adjustment', 5);
-    expect(schema.parse({ quantity: '2', reason: ' perda ' })).toEqual({ quantity: -3, reason: 'perda' });
-    expect(schema.parse({ quantity: '7', reason: 'contagem' })).toEqual({ quantity: 2, reason: 'contagem' });
+    expect(schema.parse({ quantity: '2', reasonChoice: 'loss', reason: '' })).toEqual({
+      quantity: -3,
+      reason: 'Perda',
+    });
+    expect(schema.parse({ quantity: '7', reasonChoice: 'count', reason: 'ignored' })).toEqual({
+      quantity: 2,
+      reason: 'Contagem',
+    });
+  });
+
+  it('takes the written reason only when "Outro" is chosen', () => {
+    const schema = createStockMovementFormSchema('adjustment', 5);
+    expect(schema.parse({ quantity: '4', reasonChoice: 'other', reason: ' brinde ' })).toEqual({
+      quantity: -1,
+      reason: 'brinde',
+    });
+    expect(firstError(schema.safeParse({ quantity: '4', reasonChoice: 'other', reason: '  ' }))).toBe(
+      PRODUCT_MESSAGES.otherReasonRequired,
+    );
   });
 
   it('requires a reason and a different quantity for an adjustment', () => {
     const schema = createStockMovementFormSchema('adjustment', 5);
-    expect(firstError(schema.safeParse({ quantity: '5', reason: 'contagem' }))).toBe(PRODUCT_MESSAGES.sameQuantity);
-    expect(firstError(schema.safeParse({ quantity: '4', reason: '  ' }))).toBe(PRODUCT_MESSAGES.reasonRequired);
+    expect(firstError(schema.safeParse({ quantity: '5', reasonChoice: 'count', reason: '' }))).toBe(
+      PRODUCT_MESSAGES.sameQuantity,
+    );
+    expect(firstError(schema.safeParse({ quantity: '4', reason: '' }))).toBe(PRODUCT_MESSAGES.reasonRequired);
   });
 });

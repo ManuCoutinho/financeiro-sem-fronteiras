@@ -8,8 +8,18 @@
  * Status colors were picked to reach 4.5:1 on cream, white and the soft
  * badge backgrounds.
  */
+/*
+ * The app has a single light palette. Without this, shadcn's dark: utilities follow the phone's
+ * dark mode and turn outline buttons grey on an otherwise light screen.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
+  color-scheme: light;
   --radius: 1rem;
+
+  /* Room the floating bottom navigation takes, so the end of a page is never hidden behind it. */
+  --bottom-nav-space: calc(6.5rem + max(1rem, env(safe-area-inset-bottom)));
 
   --background: #fef6e4;
   --foreground: #001858;

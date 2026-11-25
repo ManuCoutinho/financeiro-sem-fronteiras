@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createFormatters, parseAmountToCents, parseDecimalInput } from './format';
+import { createFormatters, maskPercentInput, parseAmountToCents, parseDecimalInput } from './format';
 
 const { formatCurrency, formatDecimal, formatNumber, formatDate, formatTime, formatBusinessDay } = createFormatters({
   locale: 'pt-BR',
@@ -70,5 +70,36 @@ describe('formatBusinessDay', () => {
   it('formats a business day without shifting it to the previous day', () => {
     expect(formatBusinessDay('2026-11-18', "EEEE, d 'de' MMMM")).toBe('quarta-feira, 18 de novembro');
     expect(formatBusinessDay('2026-11-01')).toBe('01/11/2026');
+  });
+});
+
+describe('money and percent masks', () => {
+  const { maskMoneyInput, formatMoneyInput } = createFormatters({ locale: 'pt-BR', currency: 'BRL' });
+
+  it('fills the money value from the cents, as in banking apps', () => {
+    expect(['2', '25', '255', '2550'].map(maskMoneyInput)).toEqual(['0,02', '0,25', '2,55', '25,50']);
+    expect(maskMoneyInput('123456')).toBe('1.234,56');
+  });
+
+  it('ignores anything that is not a digit and keeps the result readable by the parser', () => {
+    expect(maskMoneyInput('R$ 15,90')).toBe('15,90');
+    expect(maskMoneyInput('abc')).toBe('');
+    expect(maskMoneyInput('000')).toBe('');
+    expect(parseAmountToCents(maskMoneyInput('123456'))).toBe(123456);
+  });
+
+  it('formats a stored value for a money field', () => {
+    expect(formatMoneyInput(6900)).toBe('69,00');
+    expect(parseAmountToCents(formatMoneyInput(150000))).toBe(150000);
+  });
+
+  it('keeps whole percentages with up to two decimals', () => {
+    expect(maskPercentInput('3,5')).toBe('3,5');
+    expect(maskPercentInput('3.49')).toBe('3,49');
+    expect(maskPercentInput('3,499')).toBe('3,49');
+    expect(maskPercentInput('04')).toBe('4');
+    expect(maskPercentInput(',5')).toBe('0,5');
+    expect(maskPercentInput('2%a')).toBe('2');
+    expect(maskPercentInput('1,2,3')).toBe('1,23');
   });
 });

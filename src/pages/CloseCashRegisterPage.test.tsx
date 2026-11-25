@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PATHS } from '@/app/paths';
 import type { CashClosing } from '@/services/cashClosings';
 import type { Transaction } from '@/services/transactions';
 import { CLOSING_MESSAGES } from '@/ui/messages';
@@ -70,14 +71,14 @@ afterEach(cleanup);
 describe('CloseCashRegisterPage', () => {
   it('computes the expected cash, shows the difference and saves the closing', () => {
     renderPage();
-    fireEvent.change(screen.getByLabelText(CLOSING_MESSAGES.openingCashLabel), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText(CLOSING_MESSAGES.openingCashLabel), { target: { value: '5000' } });
 
     expect(normalize(screen.getByText(CLOSING_MESSAGES.expectedCashLabel).nextSibling?.textContent ?? null)).toBe(
       'R$ 95,00',
     );
     expect((screen.getByRole('button', { name: CLOSING_MESSAGES.confirm }) as HTMLButtonElement).disabled).toBe(true);
 
-    fireEvent.change(screen.getByLabelText(CLOSING_MESSAGES.countedCashLabel), { target: { value: '90' } });
+    fireEvent.change(screen.getByLabelText(CLOSING_MESSAGES.countedCashLabel), { target: { value: '9000' } });
     expect(
       screen.getByText(CLOSING_MESSAGES.differenceShort('R$ 5,00'), { normalizer: (text) => normalize(text) ?? '' }),
     ).toBeTruthy();
@@ -87,6 +88,19 @@ describe('CloseCashRegisterPage', () => {
       { day: TODAY, transactions: state.transactions, count: { openingCashCents: 5000, countedCashCents: 9000 } },
       expect.any(Function),
     );
+  });
+
+  it('lists the day expenses as an optional step and links to add one', () => {
+    renderPage();
+    expect(screen.getByText(CLOSING_MESSAGES.expensesTitle)).toBeTruthy();
+    expect(screen.getByText(CLOSING_MESSAGES.expensesHint)).toBeTruthy();
+    expect(screen.getByRole('link', { name: CLOSING_MESSAGES.addExpense }).getAttribute('href')).toBe(PATHS.newExpense);
+  });
+
+  it('says there are no expenses yet when none were added', () => {
+    state.transactions = [buildTransaction({ id: 'cash-sale' })];
+    renderPage();
+    expect(screen.getByText(CLOSING_MESSAGES.noExpenses)).toBeTruthy();
   });
 
   it('shows the saved closing and lets the day be reopened', () => {

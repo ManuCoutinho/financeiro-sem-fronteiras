@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { PAYMENT_METHODS } from '@/domain/money';
 import { NAME_MAX_LENGTH, type BusinessSettings, type Product, type Service } from '@/domain/schemas';
 import { positiveWholeNumber, wholeNumber } from '@/lib/formFields';
-import { formatDecimal, formatNumber, parseAmountToCents, parseDecimalInput } from '@/ui/format';
+import { formatMoneyInput, formatNumber, parseAmountToCents, parseDecimalInput } from '@/ui/format';
 import { FORM_MESSAGES } from '@/ui/messages';
 
 const MAX_PERCENT = 100;
@@ -21,6 +21,10 @@ const amount = z.string().transform((text, context) => {
   return z.NEVER;
 });
 
+const positiveAmount = amount.refine((cents) => cents > 0, { error: FORM_MESSAGES.invalidPositiveAmount });
+
+export const EXPIRATION_ALERT_DAY_OPTIONS = [7, 15, 30, 60] as const;
+
 const percent = z.string().transform((text, context) => {
   const parsed = parseDecimalInput(text);
   if (parsed && parsed.value <= MAX_PERCENT) return parsed.value;
@@ -33,18 +37,18 @@ const optionalDay = z
   .refine((text) => text === '' || BUSINESS_DAY.test(text), { error: FORM_MESSAGES.invalidDate })
   .transform((text) => (text === '' ? null : text));
 
-export const serviceFormSchema = z.object({ name, price: amount, isActive: z.boolean() });
+export const serviceFormSchema = z.object({ name, price: positiveAmount, isActive: z.boolean() });
 export type ServiceFormValues = z.input<typeof serviceFormSchema>;
 
 export const toServiceFormValues = (service: Service | null): ServiceFormValues => ({
   name: service?.name ?? '',
-  price: service ? formatDecimal(service.priceCents) : '',
+  price: service ? formatMoneyInput(service.priceCents) : '',
   isActive: service?.isActive ?? true,
 });
 
 export const productFormSchema = z.object({
   name,
-  salePrice: amount,
+  salePrice: positiveAmount,
   cost: amount,
   quantity: wholeNumber,
   minStock: wholeNumber,
@@ -55,8 +59,8 @@ export type ProductFormValues = z.input<typeof productFormSchema>;
 
 export const toProductFormValues = (product: Product | null): ProductFormValues => ({
   name: product?.name ?? '',
-  salePrice: product ? formatDecimal(product.salePriceCents) : '',
-  cost: product ? formatDecimal(product.costCents) : '',
+  salePrice: product ? formatMoneyInput(product.salePriceCents) : '',
+  cost: product ? formatMoneyInput(product.costCents) : '',
   quantity: String(Math.max(product?.quantity ?? 0, 0)),
   minStock: String(product?.minStock ?? 0),
   expiresOn: product?.expiresOn ?? '',

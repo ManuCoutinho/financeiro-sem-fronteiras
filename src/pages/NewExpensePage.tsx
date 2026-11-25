@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { PATHS } from '@/app/paths';
 import { ChoiceGroup } from '@/components/ChoiceGroup';
 import { expenseFormSchema, type ExpenseFormOutput, type ExpenseFormValues } from '@/components/expense/expenseForm';
+import { MoneyField } from '@/components/MoneyField';
 import { PageHeader } from '@/components/PageHeader';
 import { TextField } from '@/components/TextField';
 import { Button } from '@/components/ui/button';
@@ -13,8 +14,8 @@ import { EXPENSE_CATEGORIES } from '@/domain/cashRegister';
 import { PAYMENT_METHODS } from '@/domain/money';
 import { useCashClosing } from '@/hooks/useCashClosing';
 import { useToday } from '@/hooks/useToday';
-import { notifyError } from '@/lib/notify';
-import { registerExpense, voidTransaction } from '@/services/transactions';
+import { notifyError, notifyRejected } from '@/lib/notify';
+import { registerExpense, voidTransaction, whenSavedOnDevice } from '@/services/transactions';
 import {
   EXPENSE_CATEGORY_LABELS,
   EXPENSE_MESSAGES,
@@ -22,7 +23,6 @@ import {
   MESSAGES,
   PAGE_TITLES,
   PAYMENT_METHOD_LABELS,
-  SALE_MESSAGES,
 } from '@/ui/messages';
 
 const UNDO_TOAST_DURATION_MS = 8000;
@@ -40,15 +40,21 @@ export function NewExpensePage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ExpenseFormValues, unknown, ExpenseFormOutput>({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: { amount: '', description: '' },
   });
 
-  const onSubmit = handleSubmit(({ category, amount, description, paymentMethod }) => {
+  const onSubmit = handleSubmit(async ({ category, amount, description, paymentMethod }) => {
     const expense = { category, description, amountCents: amount, paymentMethod, day: today };
-    const transactionId = registerExpense(expense, notifyError);
+    const transactionId = registerExpense(expense, notifyRejected(EXPENSE_MESSAGES.notRegistered));
+    try {
+      await whenSavedOnDevice(transactionId);
+    } catch {
+      toast.error(EXPENSE_MESSAGES.notSavedOnDevice);
+      return;
+    }
     const undo = () => {
       const voidable = { id: transactionId, type: 'expense' as const, itemId: category, quantity: 1, day: today };
       if (voidTransaction(voidable, closing.data, notifyError) === 'dayClosed')
@@ -59,7 +65,8 @@ export function NewExpensePage() {
       action: { label: MESSAGES.undo, onClick: undo },
       duration: UNDO_TOAST_DURATION_MS,
     });
-    navigate(PATHS.cashRegister);
+    // Expenses are added from the closing screen, so that is where the person goes back to.
+    navigate(PATHS.closing);
   });
 
   const header = <PageHeader title={PAGE_TITLES.newExpense} hasBackButton />;
@@ -81,7 +88,7 @@ export function NewExpensePage() {
           <CardContent className="flex flex-col gap-3">
             <p role="status">{EXPENSE_MESSAGES.dayClosed}</p>
             <Button asChild variant="outline">
-              <Link to={PATHS.cashRegister}>{SALE_MESSAGES.backToRegister}</Link>
+              <Link to={PATHS.closing}>{EXPENSE_MESSAGES.backToClosing}</Link>
             </Button>
           </CardContent>
         </Card>
@@ -99,13 +106,7 @@ export function NewExpensePage() {
           error={errors.category?.message}
           inputProps={register('category')}
         />
-        <TextField
-          label={EXPENSE_MESSAGES.amountLabel}
-          inputMode="decimal"
-          autoComplete="off"
-          error={errors.amount?.message}
-          {...register('amount')}
-        />
+        <MoneyField label={EXPENSE_MESSAGES.amountLabel} error={errors.amount?.message} {...register('amount')} />
         <TextField
           label={EXPENSE_MESSAGES.descriptionLabel}
           hint={EXPENSE_MESSAGES.descriptionHint}
@@ -120,7 +121,7 @@ export function NewExpensePage() {
           error={errors.paymentMethod?.message}
           inputProps={register('paymentMethod')}
         />
-        <Button type="submit" size="lg">
+        <Button type="submit" size="lg" disabled={isSubmitting}>
           {EXPENSE_MESSAGES.save}
         </Button>
       </form>

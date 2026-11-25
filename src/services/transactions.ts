@@ -1,4 +1,13 @@
-import { collection, doc, onSnapshot, query, serverTimestamp, where, writeBatch } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDocFromCache,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
 import { isDayClosed } from '@/domain/cashRegister';
 import { calculateNet } from '@/domain/money';
 import {
@@ -74,6 +83,28 @@ export function registerSale(sale: NewSale, onError: OnError): string {
 
   commitInBackground(batch.commit(), onError);
   return transactionRef.id;
+}
+
+const LOCAL_WRITE_POLL_MS = 25;
+const LOCAL_WRITE_TIMEOUT_MS = 3000;
+
+/**
+ * Resolves once a new sale or expense is stored on this device, online or not. commit() only
+ * settles when the server answers (never, while offline), but the local cache already holds the
+ * write a few milliseconds after it is queued, so that is when the screen can say it was saved.
+ */
+export async function whenSavedOnDevice(transactionId: string): Promise<void> {
+  const reference = doc(db, COLLECTIONS.transactions, transactionId);
+  const deadline = Date.now() + LOCAL_WRITE_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    try {
+      if ((await getDocFromCache(reference)).exists()) return;
+    } catch {
+      // Not in the cache yet.
+    }
+    await new Promise((resolve) => setTimeout(resolve, LOCAL_WRITE_POLL_MS));
+  }
+  throw new Error('The write did not reach the local cache in time.');
 }
 
 export function registerExpense(expense: NewExpense, onError: OnError): string {

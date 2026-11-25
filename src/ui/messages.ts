@@ -1,5 +1,5 @@
 import type { ExpenseCategory, TransactionType } from '../domain/cashRegister';
-import type { StockAlertType, StockMovementType } from '../domain/inventory';
+import type { AdjustmentReason, StockAlertType, StockMovementType } from '../domain/inventory';
 import type { PaymentMethod } from '../domain/money';
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -30,6 +30,14 @@ export const STOCK_MOVEMENT_LABELS: Record<StockMovementType, string> = {
   adjustment: 'Ajuste',
   usage: 'Uso no atendimento',
   reversal: 'Venda desfeita',
+};
+
+export const ADJUSTMENT_REASON_LABELS: Record<AdjustmentReason, string> = {
+  count: 'Contagem',
+  loss: 'Perda',
+  damage: 'Avaria',
+  expired: 'Vencido',
+  other: 'Outro',
 };
 
 export const STOCK_ALERT_LABELS: Record<StockAlertType, string> = {
@@ -65,6 +73,8 @@ export const MESSAGES = {
   offlineSaleSaved: 'Sem internet. A venda foi salva e será enviada quando a conexão voltar.',
   dayClosedReopenFirst: 'Este dia já foi fechado. Reabra o caixa para desfazer.',
   unexpectedError: 'Algo deu errado. Tente de novo; se continuar, feche e abra o app.',
+  retry: 'Tentar de novo',
+  unavailable: '—',
   permissionDenied: 'Você não tem acesso a estes dados. Entre com a conta do negócio.',
 } as const;
 
@@ -91,7 +101,7 @@ export const ACCESS_MESSAGES = {
 export const PAGE_TITLES = {
   cashRegister: 'Caixa',
   confirmSale: 'Confirmar venda',
-  newExpense: 'Gastei',
+  newExpense: 'Novo gasto',
   closing: 'Fechar o caixa',
   inventory: 'Estoque',
   product: 'Produto',
@@ -102,10 +112,6 @@ export const PAGE_TITLES = {
 
 export const SETTINGS_MESSAGES = {
   accountTitle: 'Conta',
-  accountIdLabel: 'ID da conta',
-  copyAccountId: 'Copiar ID da conta',
-  accountIdCopied: 'ID da conta copiado',
-  accountIdCopyFailed: 'Não deu para copiar. Selecione o texto e copie à mão.',
   servicesTitle: 'Serviços',
   productsTitle: 'Produtos',
   businessTitle: 'Estúdio e maquininha',
@@ -135,6 +141,7 @@ export const SETTINGS_MESSAGES = {
   feesLegend: 'Taxa da maquininha (%)',
   feesHint: 'Quanto é descontado de cada venda. Pix e dinheiro costumam ser 0.',
   expirationAlertDaysLabel: 'Avisar validade com quantos dias de antecedência',
+  expirationAlertDaysOption: (days: number) => `${days} dias`,
   save: 'Salvar',
   serviceSaved: 'Serviço salvo',
   productSaved: 'Produto salvo',
@@ -150,7 +157,8 @@ export const INSTALL_MESSAGES = {
   iosSteps: [
     'Toque em Compartilhar (o quadrado com a seta para cima), na barra do navegador.',
     'Role a lista e toque em “Adicionar à Tela de Início”.',
-    'Toque em “Adicionar”. O ícone “Caixa” aparece na tela de início.',
+    'Deixe ligado “Abrir como App Web” e toque em “Adicionar”.',
+    'Abra sempre pelo ícone “Caixa” da tela de início, não pelo navegador.',
   ],
   manualTitle: 'Instalar o app',
   manualSteps: [
@@ -169,11 +177,16 @@ export const CASH_REGISTER_MESSAGES = {
   expensesLabel: 'Gastos',
   closeRegister: 'Fechar o caixa',
   dayClosed: 'Caixa de hoje fechado',
-  quickSaleTitle: 'Vendi',
+  quickSaleTitle: 'Registrar venda',
+  quickSaleHint: 'Toque no serviço ou escolha o produto do estoque.',
   noItems: 'Cadastre seus serviços e produtos na aba Mais para vender em um toque.',
+  pickProduct: 'Produto do estoque',
+  productPickerTitle: 'Escolha o produto',
+  searchProductLabel: 'Buscar produto',
+  noProductMatch: 'Nenhum produto com esse nome.',
   goToSettings: 'Cadastrar itens',
-  dayListTitle: 'Hoje',
-  noTransactions: 'Nenhuma venda hoje ainda.',
+  dayListTitle: 'Lançamentos de hoje',
+  noTransactions: 'Nenhum lançamento hoje ainda. As vendas registradas aparecem aqui.',
   voided: 'Desfeito',
   quantityTimes: (quantity: number) => `${quantity}×`,
 } as const;
@@ -193,6 +206,19 @@ export const SALE_MESSAGES = {
   dayClosed: 'O caixa de hoje já foi fechado. Reabra o caixa para registrar novas vendas.',
   backToRegister: 'Voltar ao caixa',
   saleVoided: 'Venda desfeita',
+  saving: 'Registrando a venda…',
+  notRegistered: 'A venda não foi registrada',
+  notSavedOnDevice: 'Não deu para salvar a venda neste aparelho. Tente de novo.',
+} as const;
+
+/**
+ * Shown when the server turns a sale or expense down after it already appeared on screen. The rules
+ * answer permission-denied both for a day closed on another device and for an account without
+ * access; the access screen already keeps other accounts out, so a closed day is the likely cause.
+ */
+export const REJECTION_MESSAGES = {
+  denied: 'O lançamento saiu da lista do dia. Confira se o caixa de hoje está aberto e tente de novo.',
+  other: 'O lançamento saiu da lista do dia. Tente de novo; se continuar, feche e abra o app.',
 } as const;
 
 export const EXPENSE_MESSAGES = {
@@ -204,11 +230,14 @@ export const EXPENSE_MESSAGES = {
   paymentHint: 'Pagamentos em dinheiro saem da gaveta no fechamento.',
   chooseCategory: 'Escolha com o quê foi o gasto.',
   choosePayment: 'Escolha como pagou.',
-  invalidAmount: 'Digite um valor maior que zero, como 15 ou 15,90.',
+  invalidAmount: 'Digite o valor do gasto.',
   save: 'Registrar gasto',
   registered: 'Gasto registrado',
   voided: 'Gasto desfeito',
   dayClosed: 'O caixa de hoje já foi fechado. Reabra o caixa para registrar gastos.',
+  backToClosing: 'Voltar ao fechamento',
+  notRegistered: 'O gasto não foi registrado',
+  notSavedOnDevice: 'Não deu para salvar o gasto neste aparelho. Tente de novo.',
 } as const;
 
 export const UNDO_MESSAGES = {
@@ -249,6 +278,10 @@ export const CLOSING_MESSAGES = {
   reopen: 'Reabrir o caixa',
   reopened: 'Caixa reaberto',
   reopenHint: 'Reabra para registrar ou desfazer lançamentos de hoje. A reabertura fica registrada.',
+  expensesTitle: 'Gastos do dia',
+  expensesHint: 'Opcional. Lance o que saiu do caixa hoje, como material ou transporte.',
+  addExpense: 'Adicionar gasto',
+  noExpenses: 'Nenhum gasto hoje.',
 } as const;
 
 export const INVENTORY_MESSAGES = {
@@ -274,8 +307,9 @@ export const PRODUCT_MESSAGES = {
   countedHint: (quantity: number) => `No app estão ${quantity}. O ajuste corrige a diferença.`,
   sameQuantity: 'É a mesma quantidade de agora.',
   reasonLabel: 'Motivo',
-  reasonHint: 'Por exemplo: perda, avaria ou contagem.',
-  reasonRequired: 'Conte o motivo do ajuste.',
+  reasonRequired: 'Escolha o motivo do ajuste.',
+  otherReasonLabel: 'Qual o motivo?',
+  otherReasonRequired: 'Conte o motivo do ajuste.',
   noteLabel: 'Observação (opcional)',
   save: 'Salvar',
   saved: 'Estoque atualizado',
@@ -346,7 +380,8 @@ export const IMPORT_PRICING_MESSAGES = {
 export const FORM_MESSAGES = {
   required: 'Preencha este campo.',
   tooLong: 'Use um nome mais curto.',
-  invalidAmount: 'Digite um valor como 60 ou 59,90.',
+  invalidAmount: 'Digite o valor.',
+  invalidPositiveAmount: 'Digite um valor maior que zero.',
   invalidPercent: 'Digite um percentual entre 0 e 100, como 3,5.',
   invalidWholeNumber: 'Digite um número inteiro, como 0 ou 5.',
   invalidPositiveNumber: 'Digite um número inteiro maior que zero.',

@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import type { z } from 'zod';
 import { CheckboxField } from '@/components/CheckboxField';
 import { EditorSheet } from '@/components/EditorSheet';
+import { MoneyField } from '@/components/MoneyField';
 import { TextField } from '@/components/TextField';
 import { Button } from '@/components/ui/button';
 import type { Product } from '@/domain/schemas';
@@ -50,18 +51,14 @@ export function ProductSheet({ product, nextSortOrder, onClose }: ProductSheetPr
           {...register('name')}
         />
         <div className="grid grid-cols-2 gap-3">
-          <TextField
+          <MoneyField
             label={SETTINGS_MESSAGES.salePriceLabel}
-            inputMode="decimal"
-            autoComplete="off"
             error={errors.salePrice?.message}
             className="flex flex-col justify-end gap-2"
             {...register('salePrice')}
           />
-          <TextField
+          <MoneyField
             label={SETTINGS_MESSAGES.costLabel}
-            inputMode="decimal"
-            autoComplete="off"
             error={errors.cost?.message}
             className="flex flex-col justify-end gap-2"
             {...register('cost')}
