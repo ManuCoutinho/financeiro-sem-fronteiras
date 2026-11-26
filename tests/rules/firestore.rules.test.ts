@@ -5,13 +5,14 @@ import {
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import { deleteDoc, doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
-import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { renderRules } from '../../scripts/renderRules.mjs';
 import { PAYMENT_METHODS } from '../../src/domain/money';
 import { EXPENSE_CATEGORIES, TRANSACTION_TYPES } from '../../src/domain/cashRegister';
 import { COLLECTIONS } from '../../src/services/collections';
 
 const OWNER_UID = 'ownerTestUid';
+const MAINTAINER_UID = 'maintainerTestUid';
 const STRANGER_UID = 'strangerTestUid';
 const OPEN_DAY = '2026-11-12';
 const CLOSED_DAY = '2026-11-11';
@@ -33,6 +34,7 @@ const validTransaction = {
 let testEnv: RulesTestEnvironment;
 
 const ownerDb = () => testEnv.authenticatedContext(OWNER_UID).firestore();
+const maintainerDb = () => testEnv.authenticatedContext(MAINTAINER_UID).firestore();
 const strangerDb = () => testEnv.authenticatedContext(STRANGER_UID).firestore();
 const anonymousDb = () => testEnv.unauthenticatedContext().firestore();
 
@@ -43,7 +45,7 @@ async function seed(path: string, data: Record<string, unknown>) {
 beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId: 'demo-financeiro-sem-fronteiras',
-    firestore: { rules: renderRules(OWNER_UID) },
+    firestore: { rules: renderRules(OWNER_UID, MAINTAINER_UID) },
   });
 });
 
@@ -70,6 +72,41 @@ describe('access control', () => {
   it('allows the owner to read', async () => {
     await seed(`${COLLECTIONS.transactions}/t1`, validTransaction);
     await assertSucceeds(getDoc(doc(ownerDb(), COLLECTIONS.transactions, 't1')));
+  });
+
+  it('gives the maintainer the same access as the owner', async () => {
+    await seed(`${COLLECTIONS.transactions}/t1`, validTransaction);
+    await assertSucceeds(getDoc(doc(maintainerDb(), COLLECTIONS.transactions, 't1')));
+    await assertSucceeds(setDoc(doc(maintainerDb(), COLLECTIONS.transactions, 't2'), validTransaction));
+  });
+
+  it('keeps the transaction rules for the maintainer', async () => {
+    await seed(`${COLLECTIONS.transactions}/t1`, validTransaction);
+    await assertFails(deleteDoc(doc(maintainerDb(), COLLECTIONS.transactions, 't1')));
+  });
+});
+
+describe('renderRules', () => {
+  it('authorizes only the owner when there is no maintainer', () => {
+    const rules = renderRules(OWNER_UID);
+    expect(rules).toContain(`request.auth.uid in ['${OWNER_UID}']`);
+    expect(renderRules(OWNER_UID, '')).toBe(rules);
+  });
+
+  it('authorizes the owner and the maintainer', () => {
+    expect(renderRules(OWNER_UID, MAINTAINER_UID)).toContain(
+      `request.auth.uid in ['${OWNER_UID}', '${MAINTAINER_UID}']`,
+    );
+  });
+
+  it('rejects a missing or malformed uid', () => {
+    expect(() => renderRules(undefined)).toThrow('OWNER_UID');
+    expect(() => renderRules("x' || true || '")).toThrow('OWNER_UID');
+    expect(() => renderRules(OWNER_UID, "x' || true || '")).toThrow('MAINTAINER_UID');
+  });
+
+  it('rejects the owner as maintainer', () => {
+    expect(() => renderRules(OWNER_UID, OWNER_UID)).toThrow('MAINTAINER_UID');
   });
 });
 

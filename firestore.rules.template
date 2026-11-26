@@ -1,8 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isOwner() {
-      return request.auth != null && request.auth.uid == '__OWNER_UID__';
+    function hasAccess() {
+      return request.auth != null && request.auth.uid in __AUTHORIZED_UIDS__;
     }
     function isDayOpen(day) {
       let closingPath = /databases/$(database)/documents/cashClosings/$(day);
@@ -28,20 +28,20 @@ service cloud.firestore {
         && isDayOpen(resource.data.day);
     }
 
-    match /settings/{docId}     { allow read, write: if isOwner(); }
-    match /services/{id}        { allow read, write: if isOwner(); }
-    match /products/{id}        { allow read, write: if isOwner(); }
-    match /cashClosings/{day}   { allow read, write: if isOwner(); }
+    match /settings/{docId}     { allow read, write: if hasAccess(); }
+    match /services/{id}        { allow read, write: if hasAccess(); }
+    match /products/{id}        { allow read, write: if hasAccess(); }
+    match /cashClosings/{day}   { allow read, write: if hasAccess(); }
 
     match /transactions/{id} {
-      allow read: if isOwner();
-      allow create: if isOwner() && isValidTransaction();
-      allow update: if isOwner() && isVoidingOnce();
+      allow read: if hasAccess();
+      allow create: if hasAccess() && isValidTransaction();
+      allow update: if hasAccess() && isVoidingOnce();
       allow delete: if false;
     }
 
     match /stockMovements/{id} {
-      allow read, create: if isOwner();
+      allow read, create: if hasAccess();
       allow update, delete: if false;
     }
   }
