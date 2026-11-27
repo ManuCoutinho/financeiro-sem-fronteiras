@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/ui/format';
 import { CLOSING_MESSAGES, PAYMENT_METHOD_LABELS } from '@/ui/messages';
 
-type Totals = Omit<CashRegisterSummary, 'expectedCashCents'>;
-
 // Avoids showing "-R$ 0,00" for deductions that did not happen.
 const asDeduction = (cents: number) => (cents === 0 ? 0 : -cents);
 
@@ -19,7 +17,7 @@ function Row({ label, cents, isStrong = false }: { label: string; cents: number;
   );
 }
 
-export function ClosingSummary({ totals }: { totals: Totals }) {
+export function ClosingSummary({ totals }: { totals: CashRegisterSummary }) {
   return (
     <Card>
       <CardHeader>
@@ -40,28 +38,5 @@ export function ClosingSummary({ totals }: { totals: Totals }) {
         </dl>
       </CardContent>
     </Card>
-  );
-}
-
-export function CashDifference({ differenceCents }: { differenceCents: number }) {
-  const amount = formatCurrency(Math.abs(differenceCents));
-  const text =
-    differenceCents === 0
-      ? CLOSING_MESSAGES.differenceBalanced
-      : differenceCents > 0
-        ? CLOSING_MESSAGES.differenceOver(amount)
-        : CLOSING_MESSAGES.differenceShort(amount);
-
-  return (
-    <div
-      aria-live="polite"
-      className={cn(
-        'flex items-baseline justify-between gap-3 rounded-xl p-3 text-lg font-bold',
-        differenceCents === 0 ? 'bg-income-soft text-income' : 'bg-warning-soft text-warning',
-      )}
-    >
-      <span>{CLOSING_MESSAGES.differenceLabel}</span>
-      <span className="tabular-nums">{text}</span>
-    </div>
   );
 }

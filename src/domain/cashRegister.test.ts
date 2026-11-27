@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCashClosing, isDayClosed, summarizeCashRegister, type Transaction } from './cashRegister';
+import { isDayClosed, summarizeCashRegister, type Transaction } from './cashRegister';
 
 const buildTransaction = (overrides: Partial<Transaction>): Transaction => ({
   type: 'service',
@@ -13,17 +13,14 @@ const buildTransaction = (overrides: Partial<Transaction>): Transaction => ({
 });
 
 describe('summarizeCashRegister', () => {
-  it('totals by payment method, skips voided entries and computes expected cash', () => {
-    const summary = summarizeCashRegister(
-      [
-        buildTransaction({ grossCents: 6000, netCents: 6000 }),
-        buildTransaction({ type: 'product', paymentMethod: 'credit', grossCents: 8000, feeCents: 280, netCents: 7720 }),
-        buildTransaction({ paymentMethod: 'cash', grossCents: 4000, netCents: 4000 }),
-        buildTransaction({ grossCents: 5000, netCents: 5000, isVoided: true }),
-        buildTransaction({ type: 'expense', paymentMethod: 'cash', grossCents: 1500, netCents: 1500 }),
-      ],
-      5000,
-    );
+  it('totals by payment method and skips voided entries', () => {
+    const summary = summarizeCashRegister([
+      buildTransaction({ grossCents: 6000, netCents: 6000 }),
+      buildTransaction({ type: 'product', paymentMethod: 'credit', grossCents: 8000, feeCents: 280, netCents: 7720 }),
+      buildTransaction({ paymentMethod: 'cash', grossCents: 4000, netCents: 4000 }),
+      buildTransaction({ grossCents: 5000, netCents: 5000, isVoided: true }),
+      buildTransaction({ type: 'expense', paymentMethod: 'cash', grossCents: 1500, netCents: 1500 }),
+    ]);
 
     expect(summary.totalsByMethod).toEqual({ pix: 6000, cash: 4000, debit: 0, credit: 8000 });
     expect(summary.salesCents).toBe(18000);
@@ -32,7 +29,6 @@ describe('summarizeCashRegister', () => {
     expect(summary.servicesCents).toBe(10000);
     expect(summary.productsCents).toBe(8000);
     expect(summary.expensesCents).toBe(1500);
-    expect(summary.expectedCashCents).toBe(7500);
   });
 
   it('subtracts discounts from received amounts', () => {
@@ -44,26 +40,9 @@ describe('summarizeCashRegister', () => {
   });
 
   it('returns zeroed totals for an empty day', () => {
-    const summary = summarizeCashRegister([], 2000);
+    const summary = summarizeCashRegister([]);
     expect(summary.salesCents).toBe(0);
-    expect(summary.expectedCashCents).toBe(2000);
-  });
-});
-
-describe('buildCashClosing', () => {
-  it('compares the counted cash with the expected cash', () => {
-    const closing = buildCashClosing(
-      [
-        buildTransaction({ paymentMethod: 'cash', grossCents: 4000, netCents: 4000 }),
-        buildTransaction({ type: 'expense', paymentMethod: 'cash', grossCents: 1000, netCents: 1000 }),
-      ],
-      { openingCashCents: 2000, countedCashCents: 4500 },
-    );
-
-    expect(closing.expectedCashCents).toBe(5000);
-    expect(closing.openingCashCents).toBe(2000);
-    expect(closing.countedCashCents).toBe(4500);
-    expect(closing.differenceCents).toBe(-500);
+    expect(summary.expensesCents).toBe(0);
   });
 });
 

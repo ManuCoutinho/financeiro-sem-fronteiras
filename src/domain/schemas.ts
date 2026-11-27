@@ -82,8 +82,6 @@ export const newStockMovementSchema = z
   .refine((movement) => movement.type !== 'adjustment' || movement.reason.length > 0, { path: ['reason'] });
 export type NewStockMovement = z.infer<typeof newStockMovementSchema>;
 
-export const cashCountSchema = z.object({ openingCashCents: cents, countedCashCents: cents });
-
 const signedCents = z.number().int();
 
 export const storedTransactionSchema = z.object({
@@ -121,10 +119,6 @@ export const storedCashClosingSchema = z
     servicesCents: signedCents,
     productsCents: signedCents,
     expensesCents: signedCents,
-    openingCashCents: cents,
-    expectedCashCents: signedCents,
-    countedCashCents: cents,
-    differenceCents: signedCents,
     isClosed: z.boolean(),
     reopenings: z.array(z.unknown()).default([]),
   })
