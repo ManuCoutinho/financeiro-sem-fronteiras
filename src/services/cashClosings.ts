@@ -1,6 +1,6 @@
 import { arrayUnion, doc, onSnapshot, serverTimestamp, setDoc, Timestamp, updateDoc } from 'firebase/firestore';
-import { buildCashClosing, type CashCount, type Transaction } from '@/domain/cashRegister';
-import { cashCountSchema, storedCashClosingSchema, type StoredCashClosing } from '@/domain/schemas';
+import { summarizeCashRegister, type Transaction } from '@/domain/cashRegister';
+import { storedCashClosingSchema, type StoredCashClosing } from '@/domain/schemas';
 import { COLLECTIONS } from './collections';
 import { db } from './firestore';
 import { commitInBackground, type Listener, type OnError, type Unsubscribe } from './snapshots';
@@ -22,11 +22,11 @@ export function subscribeCashClosing(day: string, { onNext, onError }: Listener<
   );
 }
 
-export type CloseCashRegister = { day: string; transactions: Transaction[]; count: CashCount };
+export type CloseCashRegister = { day: string; transactions: Transaction[] };
 
 // merge keeps the reopening history of a day that is being closed again.
-export function closeCashRegister({ day, transactions, count }: CloseCashRegister, onError: OnError) {
-  const closing = buildCashClosing(transactions, cashCountSchema.parse(count));
+export function closeCashRegister({ day, transactions }: CloseCashRegister, onError: OnError) {
+  const closing = summarizeCashRegister(transactions);
   commitInBackground(
     setDoc(closingRef(day), { ...closing, isClosed: true, closedAt: serverTimestamp() }, { merge: true }),
     onError,

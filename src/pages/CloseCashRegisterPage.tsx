@@ -1,46 +1,28 @@
 import { LockOpen, Plus } from 'lucide-react';
-import { useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { PATHS } from '@/app/paths';
 import { TransactionList } from '@/components/cashRegister/TransactionList';
-import { CashDifference, ClosingSummary } from '@/components/closing/ClosingSummary';
-import { MoneyField } from '@/components/MoneyField';
+import { ClosingSummary } from '@/components/closing/ClosingSummary';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { buildCashClosing } from '@/domain/cashRegister';
+import { summarizeCashRegister } from '@/domain/cashRegister';
 import { useCashClosing } from '@/hooks/useCashClosing';
 import { useToday } from '@/hooks/useToday';
 import { useDailyTransactions } from '@/hooks/useTransactions';
 import { notifyError } from '@/lib/notify';
 import { closeCashRegister, reopenCashRegister, type CashClosing } from '@/services/cashClosings';
 import type { Transaction } from '@/services/transactions';
-import { formatCurrency, formatMoneyInput, formatTime, parseAmountToCents } from '@/ui/format';
-import { CLOSING_MESSAGES, FORM_MESSAGES, LOADING_LABEL, PAGE_TITLES } from '@/ui/messages';
+import { formatTime } from '@/ui/format';
+import { CLOSING_MESSAGES, LOADING_LABEL, PAGE_TITLES } from '@/ui/messages';
 
-const parseOptionalAmount = (text: string) => (text.trim() === '' ? 0 : parseAmountToCents(text));
-
-type OpenDayProps = { day: string; transactions: Transaction[]; previousClosing: CashClosing | null };
-
-function OpenDay({ day, transactions, previousClosing }: OpenDayProps) {
-  const [openingText, setOpeningText] = useState(() =>
-    previousClosing ? formatMoneyInput(previousClosing.openingCashCents) : '',
-  );
-  const [countedText, setCountedText] = useState('');
-
-  const openingCashCents = parseOptionalAmount(openingText);
-  const countedCashCents = countedText.trim() === '' ? null : parseAmountToCents(countedText);
-  const closing = buildCashClosing(transactions, {
-    openingCashCents: openingCashCents ?? 0,
-    countedCashCents: countedCashCents ?? 0,
-  });
-  const isCountValid = openingCashCents !== null && countedCashCents !== null;
+function OpenDay({ day, transactions }: { day: string; transactions: Transaction[] }) {
+  const summary = summarizeCashRegister(transactions);
 
   const confirm = () => {
-    if (openingCashCents === null || countedCashCents === null) return;
-    closeCashRegister({ day, transactions, count: { openingCashCents, countedCashCents } }, notifyError);
+    closeCashRegister({ day, transactions }, notifyError);
     toast.success(CLOSING_MESSAGES.closed);
   };
 
@@ -48,7 +30,7 @@ function OpenDay({ day, transactions, previousClosing }: OpenDayProps) {
 
   return (
     <>
-      <ClosingSummary totals={closing} />
+      <ClosingSummary totals={summary} />
       <Card>
         <CardHeader>
           <CardTitle className="text-xl">{CLOSING_MESSAGES.expensesTitle}</CardTitle>
@@ -67,38 +49,9 @@ function OpenDay({ day, transactions, previousClosing }: OpenDayProps) {
           </Button>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">{CLOSING_MESSAGES.drawerTitle}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          <MoneyField
-            label={CLOSING_MESSAGES.openingCashLabel}
-            hint={CLOSING_MESSAGES.openingCashHint}
-            value={openingText}
-            onChange={(event) => setOpeningText(event.target.value)}
-            error={openingCashCents === null ? FORM_MESSAGES.invalidAmount : undefined}
-          />
-          <div className="flex flex-col gap-1">
-            <div className="flex items-baseline justify-between gap-3 text-lg font-bold">
-              <span>{CLOSING_MESSAGES.expectedCashLabel}</span>
-              <span className="tabular-nums">{formatCurrency(closing.expectedCashCents)}</span>
-            </div>
-            <p className="text-sm text-muted-foreground">{CLOSING_MESSAGES.expectedCashHint}</p>
-          </div>
-          <MoneyField
-            label={CLOSING_MESSAGES.countedCashLabel}
-            hint={CLOSING_MESSAGES.countedCashHint}
-            value={countedText}
-            onChange={(event) => setCountedText(event.target.value)}
-            error={countedText.trim() !== '' && countedCashCents === null ? FORM_MESSAGES.invalidAmount : undefined}
-          />
-          {isCountValid && <CashDifference differenceCents={closing.differenceCents} />}
-          <Button size="lg" disabled={!isCountValid} onClick={confirm}>
-            {CLOSING_MESSAGES.confirm}
-          </Button>
-        </CardContent>
-      </Card>
+      <Button size="lg" onClick={confirm}>
+        {CLOSING_MESSAGES.confirm}
+      </Button>
     </>
   );
 }
@@ -123,26 +76,6 @@ function ClosedDay({ day, closing }: { day: string; closing: CashClosing }) {
         )}
       </div>
       <ClosingSummary totals={closing} />
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">{CLOSING_MESSAGES.drawerTitle}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          <dl className="flex flex-col gap-2">
-            {[
-              { label: CLOSING_MESSAGES.openingCashLabel, cents: closing.openingCashCents },
-              { label: CLOSING_MESSAGES.expectedCashLabel, cents: closing.expectedCashCents },
-              { label: CLOSING_MESSAGES.countedCashLabel, cents: closing.countedCashCents },
-            ].map(({ label, cents }) => (
-              <div key={label} className="flex items-baseline justify-between gap-3">
-                <dt>{label}</dt>
-                <dd className="font-semibold tabular-nums">{formatCurrency(cents)}</dd>
-              </div>
-            ))}
-          </dl>
-          <CashDifference differenceCents={closing.differenceCents} />
-        </CardContent>
-      </Card>
       <div className="flex flex-col gap-2">
         <Button variant="outline" size="lg" onClick={reopen}>
           <LockOpen aria-hidden="true" /> {CLOSING_MESSAGES.reopen}
@@ -175,7 +108,7 @@ export function CloseCashRegisterPage() {
       )}
       {!isLoading && closing.data && closing.isClosed && <ClosedDay day={today} closing={closing.data} />}
       {!isLoading && !closing.isClosed && (
-        <OpenDay key={today} day={today} transactions={transactions.data} previousClosing={closing.data} />
+        <OpenDay key={today} day={today} transactions={transactions.data} />
       )}
     </>
   );

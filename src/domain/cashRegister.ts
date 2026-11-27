@@ -24,7 +24,7 @@ export type CashRegisterSummary = ReturnType<typeof summarizeCashRegister>;
 const emptyTotalsByMethod = () =>
   Object.fromEntries(PAYMENT_METHODS.map((method) => [method, 0])) as Record<PaymentMethod, number>;
 
-export function summarizeCashRegister(transactions: Transaction[], openingCashCents = 0) {
+export function summarizeCashRegister(transactions: Transaction[]) {
   const totalsByMethod = emptyTotalsByMethod();
   let salesCents = 0;
   let feesCents = 0;
@@ -32,12 +32,10 @@ export function summarizeCashRegister(transactions: Transaction[], openingCashCe
   let servicesCents = 0;
   let productsCents = 0;
   let expensesCents = 0;
-  let cashExpensesCents = 0;
 
   for (const transaction of transactions.filter((item) => !item.isVoided)) {
     if (transaction.type === 'expense') {
       expensesCents += transaction.grossCents;
-      if (transaction.paymentMethod === 'cash') cashExpensesCents += transaction.grossCents;
       continue;
     }
     const receivedCents = transaction.grossCents - transaction.discountCents;
@@ -57,22 +55,7 @@ export function summarizeCashRegister(transactions: Transaction[], openingCashCe
     servicesCents,
     productsCents,
     expensesCents,
-    expectedCashCents: openingCashCents + totalsByMethod.cash - cashExpensesCents,
   };
 }
-
-export type CashCount = { openingCashCents: number; countedCashCents: number };
-
-export function buildCashClosing(transactions: Transaction[], { openingCashCents, countedCashCents }: CashCount) {
-  const summary = summarizeCashRegister(transactions, openingCashCents);
-  return {
-    ...summary,
-    openingCashCents,
-    countedCashCents,
-    differenceCents: countedCashCents - summary.expectedCashCents,
-  };
-}
-
-export type CashClosingTotals = ReturnType<typeof buildCashClosing>;
 
 export const isDayClosed = (closing: { isClosed: boolean } | null) => closing?.isClosed === true;

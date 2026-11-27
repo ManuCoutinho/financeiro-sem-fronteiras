@@ -69,23 +69,17 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('CloseCashRegisterPage', () => {
-  it('computes the expected cash, shows the difference and saves the closing', () => {
+  it('shows the day result and closes without asking for a cash count', () => {
     renderPage();
-    fireEvent.change(screen.getByLabelText(CLOSING_MESSAGES.openingCashLabel), { target: { value: '5000' } });
 
-    expect(normalize(screen.getByText(CLOSING_MESSAGES.expectedCashLabel).nextSibling?.textContent ?? null)).toBe(
-      'R$ 95,00',
+    expect(normalize(screen.getByText(CLOSING_MESSAGES.resultLabel).nextSibling?.textContent ?? null)).toBe(
+      'R$ 102,90',
     );
-    expect((screen.getByRole('button', { name: CLOSING_MESSAGES.confirm }) as HTMLButtonElement).disabled).toBe(true);
-
-    fireEvent.change(screen.getByLabelText(CLOSING_MESSAGES.countedCashLabel), { target: { value: '9000' } });
-    expect(
-      screen.getByText(CLOSING_MESSAGES.differenceShort('R$ 5,00'), { normalizer: (text) => normalize(text) ?? '' }),
-    ).toBeTruthy();
+    expect(screen.queryByRole('textbox')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: CLOSING_MESSAGES.confirm }));
     expect(services.closeCashRegister).toHaveBeenCalledWith(
-      { day: TODAY, transactions: state.transactions, count: { openingCashCents: 5000, countedCashCents: 9000 } },
+      { day: TODAY, transactions: state.transactions },
       expect.any(Function),
     );
   });
@@ -112,10 +106,6 @@ describe('CloseCashRegisterPage', () => {
       servicesCents: 12000,
       productsCents: 0,
       expensesCents: 1500,
-      openingCashCents: 5000,
-      expectedCashCents: 9500,
-      countedCashCents: 9500,
-      differenceCents: 0,
       isClosed: true,
       reopeningCount: 1,
       closedAt: new Date(2026, 10, 18, 19, 30),
@@ -123,8 +113,7 @@ describe('CloseCashRegisterPage', () => {
     renderPage();
 
     expect(screen.getByText(CLOSING_MESSAGES.closedAt('19:30'))).toBeTruthy();
-    expect(screen.getByText(CLOSING_MESSAGES.differenceBalanced)).toBeTruthy();
-    expect(screen.queryByLabelText(CLOSING_MESSAGES.countedCashLabel)).toBeNull();
+    expect(screen.queryByRole('button', { name: CLOSING_MESSAGES.confirm })).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: CLOSING_MESSAGES.reopen }));
     expect(services.reopenCashRegister).toHaveBeenCalledWith(TODAY, expect.any(Function));
