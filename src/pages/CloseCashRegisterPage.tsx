@@ -107,9 +107,7 @@ export function CloseCashRegisterPage() {
         </p>
       )}
       {!isLoading && closing.data && closing.isClosed && <ClosedDay day={today} closing={closing.data} />}
-      {!isLoading && !closing.isClosed && (
-        <OpenDay key={today} day={today} transactions={transactions.data} />
-      )}
+      {!isLoading && !closing.isClosed && <OpenDay key={today} day={today} transactions={transactions.data} />}
     </>
   );
 }
